@@ -19,368 +19,78 @@
       --toggle-bg: #373e47;
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 14px;
-      line-height: 1.5;
-    }
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .month-controls { display: flex; align-items: center; gap: 8px; }
+    .month-input { background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 6px 12px; font-size: 14px; min-width: 140px; }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+    .btn { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 6px 12px; font-size: 14px; cursor: pointer; transition: background-color 0.15s ease, transform .05s ease; display: inline-flex; align-items: center; gap: 6px; user-select: none; touch-action: manipulation; }
+    .btn:active { transform: scale(0.98); }
+    .btn:hover { background: var(--card); }
+    .btn-nav { padding: 6px 8px; min-width: 32px; justify-content: center; }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-danger { background: var(--danger); border-color: var(--danger); color: #fff; }
 
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
+    .hide-toggle { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+    /* Toggle switch styling */
+    .toggle { position: relative; width: 44px; height: 24px; background: var(--toggle-bg); border-radius: 999px; border: 1px solid var(--border); }
+    .toggle input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0; cursor: pointer; }
+    .toggle-slider { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #c9d1d9; border-radius: 50%; transition: left .2s ease, background .2s ease; }
+    .toggle input:checked + .toggle-slider { left: 22px; background: #fff; }
 
-    .month-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .main-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .panel-header { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .panel-title { font-size: 16px; font-weight: 600; margin: 0; }
 
-    .month-input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 6px 12px;
-      font-size: 14px;
-      min-width: 140px;
-    }
+    .totals { display: flex; align-items: center; gap: 24px; font-size: 14px; flex-wrap: wrap; }
+    .total-item { display: flex; align-items: center; gap: 4px; }
+    .total-value { font-weight: 600; }
+    .hidden-amount { filter: blur(4px); transition: filter .2s ease; }
+    .currency-selector { background: var(--input-bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 2px 6px; font-size: 12px; margin-left: 8px; }
 
-    .btn {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 6px 12px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .table-container { overflow-x: auto; }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--muted); }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.5; }
 
-    .btn:hover {
-      background: var(--card);
-    }
+    table { width: 100%; border-collapse: collapse; min-width: 700px; }
+    th { text-align: left; padding: 12px 24px; font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); }
+    td { padding: 16px 24px; border-bottom: 1px solid var(--border); vertical-align: middle; }
 
-    .btn-nav {
-      padding: 6px 8px;
-      min-width: 32px;
-      justify-content: center;
-    }
+    .currency-input, .amount-input, .date-input { background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 8px 12px; font-size: 14px; }
+    .currency-input { width: 82px; margin-right: 8px; }
+    .amount-input { width: 120px; -moz-appearance: textfield; }
+    .amount-input::-webkit-outer-spin-button, .amount-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .date-input { width: 140px; }
 
-    .hide-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: var(--muted);
-    }
+    .status-toggle { cursor: pointer; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 16px; border: none; transition: all .2s ease; min-width: 70px; }
+    .status-toggle.paid { background: #0f2a1a; color: #22c55e; border: 1px solid #1f5c3b; }
+    .status-toggle.unpaid { background: #291b1b; color: #ef4444; border: 1px solid #563131; }
+    .status-toggle:hover { opacity: .85; }
 
-    .main-panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 24px;
-      overflow: hidden;
-    }
+    .action-buttons { display: flex; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border); }
 
-    .panel-header {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .panel-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin: 0;
-    }
-
-    .totals {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      font-size: 14px;
-      flex-wrap: wrap;
-    }
-
-    .total-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .total-value {
-      font-weight: 600;
-    }
-
-    .currency-selector {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--text);
-      padding: 2px 6px;
-      font-size: 12px;
-      margin-left: 8px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--muted);
-    }
-
-    .empty-icon {
-      font-size: 48px;
-      margin-bottom: 12px;
-      opacity: 0.5;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 700px;
-    }
-
-    th {
-      text-align: left;
-      padding: 12px 24px;
-      font-weight: 600;
-      color: var(--muted);
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 1px solid var(--border);
-    }
-
-    td {
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-
-    .amount-input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 14px;
-      width: 120px;
-      -moz-appearance: textfield;
-    }
-
-    .amount-input::-webkit-outer-spin-button,
-    .amount-input::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-
-    .date-input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 14px;
-      width: 140px;
-    }
-
-    .currency-input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 14px;
-      width: 80px;
-      margin-right: 8px;
-    }
-
-    /* Toggle Switch */
-    .status-toggle {
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 16px;
-      border: none;
-      transition: all 0.2s ease;
-      min-width: 70px;
-    }
-
-    .status-toggle.paid {
-      background: #0f2a1a;
-      color: #22c55e;
-      border: 1px solid #1f5c3b;
-    }
-
-    .status-toggle.unpaid {
-      background: #291b1b;
-      color: #ef4444;
-      border: 1px solid #563131;
-    }
-
-    .status-toggle:hover {
-      opacity: 0.8;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 12px;
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      border: 1px solid var(--accent);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-hover);
-    }
-
-    .btn-danger {
-      background: var(--danger);
-      border: 1px solid var(--danger);
-      color: white;
-    }
-
-    .add-card-section {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-bottom: 24px;
-      overflow: hidden;
-    }
-
-    .add-card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 24px;
-      cursor: pointer;
-      transition: background-color 0.15s ease;
-    }
-
-    .add-card-header:hover {
-      background: var(--card);
-    }
-
-    .add-card-title {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .expand-icon {
-      transition: transform 0.2s ease;
-      color: var(--muted);
-    }
-
-    .expand-icon.expanded {
-      transform: rotate(180deg);
-    }
-
-    .add-card-content {
-      padding: 0 24px 24px;
-      display: none;
-    }
-
-    .add-card-content.expanded {
-      display: block;
-    }
-
-    .add-icon {
-      background: var(--accent);
-      color: white;
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-    }
-
-    .add-form {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .card-input {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 14px;
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .hidden-amount {
-      filter: blur(4px);
-      transition: filter 0.2s ease;
-    }
-
-    .cards-list {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .add-card-section { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 24px; overflow: hidden; }
+    .add-card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; cursor: pointer; transition: background-color .15s ease; }
+    .add-card-header:hover { background: var(--card); }
+    .add-card-title { display: flex; align-items: center; gap: 12px; }
+    .expand-icon { transition: transform .2s ease; color: var(--muted); }
+    .expand-icon.expanded { transform: rotate(180deg); }
+    .add-card-content { padding: 0 24px 24px; display: none; }
+    .add-card-content.expanded { display: block; }
+    .add-icon { background: var(--accent); color: #fff; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+    .add-form { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .card-input { background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); padding: 8px 12px; font-size: 14px; flex: 1; min-width: 200px; }
+    .cards-list { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); line-height: 1.6; }
 
     @media (max-width: 768px) {
-      .container {
-        padding: 16px;
-      }
-      
-      .header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .totals {
-        gap: 16px;
-      }
-      
-      .add-form {
-        flex-direction: column;
-        align-items: stretch;
-      }
+      .container { padding: 16px; }
+      .header { flex-direction: column; align-items: flex-start; }
+      .totals { gap: 16px; }
+      .add-form { flex-direction: column; align-items: stretch; }
     }
   </style>
 </head>
@@ -389,16 +99,16 @@
     <div class="header">
       <div class="month-controls">
         <span style="font-weight: 600; margin-right: 12px;" id="monthDisplay">Aug 2025</span>
-        <input type="month" id="month" class="month-input" style="display: none;" />
-        <button id="btnPrev" class="btn btn-nav">‹</button>
-        <button id="btnNext" class="btn btn-nav">›</button>
+        <input type="month" id="month" class="month-input" style="display:none;" />
+        <button id="btnPrev" class="btn btn-nav" type="button">‹</button>
+        <button id="btnNext" class="btn btn-nav" type="button">›</button>
       </div>
       <div class="hide-toggle">
         <span>Hide amounts</span>
-        <div class="toggle">
+        <label class="toggle">
           <input type="checkbox" id="hideToggle">
           <span class="toggle-slider"></span>
-        </div>
+        </label>
       </div>
     </div>
 
@@ -432,9 +142,9 @@
         <div id="emptyState" class="empty-state">
           <div class="empty-icon">💳</div>
           <div>No credit cards</div>
-          <div style="font-size: 12px; margin-top: 4px;">Get started by adding your first credit card.</div>
+          <div style="font-size:12px; margin-top:4px;">Get started by adding your first credit card.</div>
         </div>
-        <table id="cardsTable" style="display: none;">
+        <table id="cardsTable" style="display:none;">
           <thead>
             <tr>
               <th>Card</th>
@@ -448,9 +158,9 @@
       </div>
 
       <div class="action-buttons">
-        <button id="btnExport" class="btn">Export CSV</button>
-        <button id="btnMarkAll" class="btn btn-primary">Mark All Paid</button>
-        <button id="btnReset" class="btn btn-danger">Reset Month</button>
+        <button id="btnExport" class="btn" type="button">Export CSV</button>
+        <button id="btnMarkAll" class="btn btn-primary" type="button">Mark All Paid</button>
+        <button id="btnReset" class="btn btn-danger" type="button">Reset Month</button>
       </div>
     </div>
 
@@ -459,8 +169,8 @@
         <div class="add-card-title">
           <div class="add-icon">+</div>
           <div>
-            <div style="font-weight: 600;">Add New Credit Card</div>
-            <div style="font-size: 12px; color: var(--muted);">Add a new card to track its monthly payments</div>
+            <div style="font-weight:600;">Add New Credit Card</div>
+            <div style="font-size:12px; color: var(--muted);">Add a new card to track its monthly payments</div>
           </div>
         </div>
         <div class="expand-icon" id="expandIcon">⌄</div>
@@ -468,8 +178,8 @@
       <div class="add-card-content" id="addCardContent">
         <div class="add-form">
           <input id="ccName" placeholder="Card name" class="card-input" />
-          <button id="btnAddCard" class="btn btn-primary">Add Card</button>
-          <button id="btnEditCards" class="btn">Manage Cards</button>
+          <button id="btnAddCard" class="btn btn-primary" type="button">Add Card</button>
+          <button id="btnEditCards" class="btn" type="button">Manage Cards</button>
         </div>
         <div id="cardsList" class="cards-list"></div>
       </div>
@@ -484,13 +194,10 @@
     const $ = s => document.querySelector(s);
     const $$ = s => Array.from(document.querySelectorAll(s));
 
-    function loadStore() {
-      try {
-        const data = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-        return data && data.cards && data.payments ? data : { cards: [], payments: {} };
-      } catch (e) {
-        return { cards: [], payments: {} };
-      }
+    function loadStore(){
+      try{ const data = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+        return (data && data.cards && data.payments) ? data : {cards:[],payments:{}};
+      }catch(e){ return {cards:[],payments:{}}; }
     }
 
     let store = loadStore();
@@ -498,296 +205,136 @@
     let totalCurrency = localStorage.getItem(CURRENCY_KEY) || 'AED';
 
     // ---------- Helpers ----------
-    const ym = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const formatMonthDisplay = dateStr => {
-      if (!dateStr) return '';
-      const [year, month] = dateStr.split('-');
-      const date = new Date(year, month - 1);
-      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    const ym = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const formatMonthDisplay = (dateStr) => {
+      if(!dateStr) return '';
+      const [y,m] = dateStr.split('-');
+      const date = new Date(y, m-1);
+      return date.toLocaleDateString('en-US',{month:'short', year:'numeric'});
     };
-    const formatNumber = n => {
-      const num = +n || 0;
-      return num.toLocaleString('en-US', { 
-        minimumFractionDigits: 0, 
-        maximumFractionDigits: 0 
-      });
-    };
-    function save() { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
-    function ensureMonth(m) { if (!store.payments[m]) store.payments[m] = {}; }
+    const formatNumber = n => (+(n)||0).toLocaleString('en-US',{minimumFractionDigits:0, maximumFractionDigits:0});
+    const save = ()=> localStorage.setItem(STORE_KEY, JSON.stringify(store));
+    const ensureMonth = (m)=>{ if(!store.payments[m]) store.payments[m] = {}; };
 
     // ---------- Render ----------
-    function render() {
-      const m = $('#month').value;
-      ensureMonth(m);
-      const tb = $('#paymentsTbody');
-      const table = $('#cardsTable');
-      const empty = $('#emptyState');
-      
+    function render(){
+      const m = $('#month').value; ensureMonth(m);
+      const tb = $('#paymentsTbody'); const table = $('#cardsTable'); const empty = $('#emptyState');
       tb.innerHTML = '';
-      let total = 0, paid = 0;
+      let total=0, paid=0;
 
-      if (store.cards.length === 0) {
-        table.style.display = 'none';
-        empty.style.display = 'block';
-      } else {
-        table.style.display = 'table';
-        empty.style.display = 'none';
-
-        store.cards.forEach(c => {
-          if (!store.payments[m][c.id]) {
-            store.payments[m][c.id] = { amount: '', dueDate: '', paid: false, currency: 'AED' };
-          }
+      if(store.cards.length===0){ table.style.display='none'; empty.style.display='block'; }
+      else {
+        table.style.display='table'; empty.style.display='none';
+        store.cards.forEach(c=>{
+          if(!store.payments[m][c.id]) store.payments[m][c.id] = {amount:'', dueDate:'', paid:false, currency:'AED'};
           const p = store.payments[m][c.id];
-          const amount = +p.amount || 0;
-          total += amount;
-          if (p.paid) paid += amount;
-
+          const amount = +p.amount || 0; total += amount; if(p.paid) paid += amount;
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${escapeHtml(c.name)}${c.last4 ? ` (•••• ${escapeHtml(c.last4)})` : ''}</td>
+            <td>${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}</td>
             <td>
               <select class="currency-input" data-currency="${c.id}">
-                <option value="AED" ${p.currency === 'AED' ? 'selected' : ''}>AED</option>
-                <option value="USD" ${p.currency === 'USD' ? 'selected' : ''}>USD</option>
-                <option value="EUR" ${p.currency === 'EUR' ? 'selected' : ''}>EUR</option>
-                <option value="GBP" ${p.currency === 'GBP' ? 'selected' : ''}>GBP</option>
-                <option value="SAR" ${p.currency === 'SAR' ? 'selected' : ''}>SAR</option>
+                ${['AED','USD','EUR','GBP','SAR'].map(cur=>`<option value="${cur}" ${p.currency===cur?'selected':''}>${cur}</option>`).join('')}
               </select>
-              <input type="number" class="amount-input ${hideAmounts ? 'hidden-amount' : ''}" 
-                     inputmode="decimal" step="0.01" data-amount="${c.id}" value="${p.amount}" placeholder="0.00" />
+              <input type="number" class="amount-input ${hideAmounts?'hidden-amount':''}" inputmode="decimal" step="0.01" data-amount="${c.id}" value="${p.amount}" placeholder="0.00" />
             </td>
-            <td><input type="date" class="date-input" data-date="${c.id}" value="${p.dueDate || ''}" /></td>
-            <td>
-              <button class="status-toggle ${p.paid ? 'paid' : 'unpaid'}" data-togglepaid="${c.id}">
-                ${p.paid ? 'Paid' : 'Unpaid'}
-              </button>
-            </td>
-          `;
+            <td><input type="date" class="date-input" data-date="${c.id}" value="${p.dueDate||''}" /></td>
+            <td><button class="status-toggle ${p.paid?'paid':'unpaid'}" data-togglepaid="${c.id}">${p.paid?'Paid':'Unpaid'}</button></td>`;
           tb.appendChild(tr);
         });
       }
 
-      // Update totals
+      // Totals
       $('#chipTotal').textContent = `${formatNumber(total)} ${totalCurrency}`;
-      $('#chipTotal').className = `total-value ${hideAmounts ? 'hidden-amount' : ''}`;
-      
       $('#chipPaid').textContent = `${formatNumber(paid)} ${totalCurrency}`;
-      $('#chipPaid').className = `total-value ${hideAmounts ? 'hidden-amount' : ''}`;
-      
-      $('#chipRemain').textContent = `${formatNumber(total - paid)} ${totalCurrency}`;
-      $('#chipRemain').className = `total-value ${hideAmounts ? 'hidden-amount' : ''}`;
+      $('#chipRemain').textContent = `${formatNumber(total-paid)} ${totalCurrency}`;
+      ['chipTotal','chipPaid','chipRemain'].forEach(id=> $('#'+id).classList.toggle('hidden-amount', hideAmounts));
 
-      // Wire events
-      $$('input[data-amount]').forEach(inp => {
-        inp.onchange = e => {
-          const id = e.target.dataset.amount;
-          const m = $('#month').value;
-          ensureMonth(m);
-          store.payments[m][id].amount = +e.target.value || 0;
-          save();
-          render();
-        };
-      });
-
-      $$('input[data-date]').forEach(inp => {
-        inp.onchange = e => {
-          const id = e.target.dataset.date;
-          const m = $('#month').value;
-          ensureMonth(m);
-          store.payments[m][id].dueDate = e.target.value;
-          save();
-          render();
-        };
-      });
-
-      $('button[data-togglepaid]').forEach(btn => {
-        btn.onclick = e => {
-          const id = e.target.dataset.togglepaid;
-          const m = $('#month').value;
-          ensureMonth(m);
-          store.payments[m][id].paid = !store.payments[m][id].paid;
-          save();
-          render();
-        };
-      });
-
-      $$('select[data-currency]').forEach(sel => {
-        sel.onchange = e => {
-          const id = e.target.dataset.currency;
-          const m = $('#month').value;
-          ensureMonth(m);
-          store.payments[m][id].currency = e.target.value;
-          save();
-          render();
-        };
-      });
+      // Row events
+      $$('input[data-amount]').forEach(inp=> inp.onchange = e => { const id=e.target.dataset.amount; const m=$('#month').value; ensureMonth(m); store.payments[m][id].amount=+e.target.value||0; save(); render(); });
+      $$('input[data-date]').forEach(inp=> inp.onchange = e => { const id=e.target.dataset.date; const m=$('#month').value; ensureMonth(m); store.payments[m][id].dueDate=e.target.value; save(); render(); });
+      $$('button[data-togglepaid]').forEach(btn=> btn.onclick = e => { const id=e.target.dataset.togglepaid; const m=$('#month').value; ensureMonth(m); store.payments[m][id].paid=!store.payments[m][id].paid; save(); render(); });
+      $$('select[data-currency]').forEach(sel=> sel.onchange = e => { const id=e.target.dataset.currency; const m=$('#month').value; ensureMonth(m); store.payments[m][id].currency=e.target.value; save(); render(); });
 
       renderCardsList();
     }
 
-    function renderCardsList() {
+    function renderCardsList(){
       const list = $('#cardsList');
-      if (!store.cards.length) {
-        list.textContent = 'No cards added yet.';
-        return;
-      }
-      list.innerHTML = store.cards.map(c => 
-        `${escapeHtml(c.name)}${c.last4 ? ` (•••• ${escapeHtml(c.last4)})` : ''}${c.limit ? ` — Limit: ${formatNumber(c.limit)}` : ''}`
-      ).join('<br>');
+      if(!store.cards.length){ list.textContent='No cards added yet.'; return; }
+      list.innerHTML = store.cards.map(c=> `${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}${c.limit?` — Limit: ${formatNumber(c.limit)}`:''}`).join('<br>');
     }
 
     // ---------- Event Handlers ----------
     $('#btnAddCard').onclick = () => {
       const name = $('#ccName').value.trim();
-      if (!name) return alert('Enter card name');
+      if(!name) return alert('Enter card name');
       const last4 = prompt('Last 4 digits (optional)') || '';
       const limitStr = prompt('Credit limit (optional)');
       const limit = limitStr && !isNaN(+limitStr) ? +limitStr : '';
       store.cards.push({ id: Date.now(), name, last4: last4.trim(), limit });
-      save();
-      $('#ccName').value = '';
-      render();
+      save(); $('#ccName').value=''; render();
     };
 
     $('#btnEditCards').onclick = () => {
-      if (!store.cards.length) return alert('No cards to edit.');
-      
-      const cardList = store.cards.map((c, i) => 
-        `${i + 1}. ${c.name}${c.last4 ? ` (•••• ${c.last4})` : ''}`
-      ).join('\n');
-      
+      if(!store.cards.length) return alert('No cards to edit.');
+      const cardList = store.cards.map((c,i)=>`${i+1}. ${c.name}${c.last4?` (•••• ${c.last4})`:''}`).join('\n');
       const action = prompt(`Choose action:\n\n${cardList}\n\n1. Type card number to edit\n2. Type "delete X" to remove card X\n\nYour choice:`);
-      
-      if (!action) return;
-      
-      // Delete action
-      if (action.toLowerCase().startsWith('delete ')) {
-        const cardNum = parseInt(action.split(' ')[1]);
-        if (isNaN(cardNum) || cardNum < 1 || cardNum > store.cards.length) {
-          return alert('Invalid card number for deletion.');
-        }
-        
-        if (confirm(`Delete "${store.cards[cardNum - 1].name}"?`)) {
-          const cardId = store.cards[cardNum - 1].id;
-          store.cards.splice(cardNum - 1, 1);
-          // Remove payment data for this card
-          Object.keys(store.payments).forEach(month => {
-            delete store.payments[month][cardId];
-          });
-          save();
-          render();
+      if(!action) return;
+      if(action.toLowerCase().startsWith('delete ')){
+        const n = parseInt(action.split(' ')[1]);
+        if(isNaN(n) || n<1 || n>store.cards.length) return alert('Invalid card number for deletion.');
+        if(confirm(`Delete "${store.cards[n-1].name}"?`)){
+          const cardId = store.cards[n-1].id;
+          store.cards.splice(n-1,1);
+          Object.keys(store.payments).forEach(month=>{ delete store.payments[month][cardId]; });
+          save(); render();
         }
         return;
       }
-      
-      // Edit action
-      const cardIndex = parseInt(action) - 1;
-      if (isNaN(cardIndex) || cardIndex < 0 || cardIndex >= store.cards.length) {
-        return alert('Invalid card number.');
-      }
-      
-      const card = store.cards[cardIndex];
-      const newName = prompt('Card name:', card.name);
-      if (newName === null) return;
-      
-      const newLast4 = prompt('Last 4 digits (optional):', card.last4 || '');
-      if (newLast4 === null) return;
-      
-      const newLimitStr = prompt('Credit limit (optional):', card.limit || '');
-      if (newLimitStr === null) return;
-      
-      card.name = newName.trim() || card.name;
-      card.last4 = (newLast4 || '').trim();
-      card.limit = newLimitStr.trim() === '' ? '' : (+newLimitStr || '');
-      save();
-      render();
+      const idx = parseInt(action)-1;
+      if(isNaN(idx) || idx<0 || idx>=store.cards.length) return alert('Invalid card number.');
+      const card = store.cards[idx];
+      const newName = prompt('Card name:', card.name); if(newName===null) return;
+      const newLast4 = prompt('Last 4 digits (optional):', card.last4||''); if(newLast4===null) return;
+      const newLimitStr = prompt('Credit limit (optional):', card.limit||''); if(newLimitStr===null) return;
+      card.name = newName.trim()||card.name;
+      card.last4 = (newLast4||'').trim();
+      card.limit = newLimitStr.trim()==='' ? '' : (+newLimitStr || '');
+      save(); render();
     };
 
-    $('#btnPrev').onclick = () => shiftMonth(-1);
-    $('#btnNext').onclick = () => shiftMonth(1);
-    
-    function shiftMonth(d) {
-      let date = $('#month').value ? new Date($('#month').value + '-01T00:00:00') : new Date();
-      date.setDate(1);
-      date.setMonth(date.getMonth() + d);
-      $('#month').value = ym(date);
-      $('#monthDisplay').textContent = formatMonthDisplay($('#month').value);
-      render();
-    }
+    $('#btnPrev').onclick = ()=> shiftMonth(-1);
+    $('#btnNext').onclick = ()=> shiftMonth(1);
+    function shiftMonth(d){ let date = $('#month').value ? new Date($('#month').value+'-01T00:00:00') : new Date(); date.setDate(1); date.setMonth(date.getMonth()+d); $('#month').value = ym(date); $('#monthDisplay').textContent = formatMonthDisplay($('#month').value); render(); }
 
     $('#btnExport').onclick = () => {
-      const m = $('#month').value;
-      ensureMonth(m);
-      const rows = [['Card', 'Amount', 'Currency', 'Due Date', 'Status']];
-      store.cards.forEach(c => {
-        const p = store.payments[m][c.id] || {};
-        rows.push([c.name, p.amount || '', p.currency || 'AED', p.dueDate || '', p.paid ? 'Paid' : 'Unpaid']);
-      });
-      const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
+      const m = $('#month').value; ensureMonth(m);
+      const rows = [["Card","Amount","Currency","Due Date","Status"]];
+      store.cards.forEach(c=>{ const p = store.payments[m][c.id] || {}; rows.push([c.name, p.amount||'', p.currency||'AED', p.dueDate||'', p.paid?'Paid':'Unpaid']); });
+      const csv = rows.map(r=> r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `credit-cards-${m}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const a = document.createElement('a'); a.href=url; a.download=`credit-cards-${m}.csv`; a.click(); URL.revokeObjectURL(url);
     };
 
-    $('#btnMarkAll').onclick = () => {
-      const m = $('#month').value;
-      ensureMonth(m);
-      store.cards.forEach(c => {
-        if (!store.payments[m][c.id]) {
-          store.payments[m][c.id] = { amount: '', dueDate: '', paid: false, currency: 'AED' };
-        }
-        store.payments[m][c.id].paid = true;
-      });
-      save();
-      render();
-    };
+    $('#btnMarkAll').onclick = () => { const m=$('#month').value; ensureMonth(m); store.cards.forEach(c=>{ if(!store.payments[m][c.id]) store.payments[m][c.id]={amount:'',dueDate:'',paid:false,currency:'AED'}; store.payments[m][c.id].paid=true; }); save(); render(); };
 
-    $('#btnReset').onclick = () => {
-      if (!confirm('Reset all payment data for this month?')) return;
-      const m = $('#month').value;
-      delete store.payments[m];
-      save();
-      render();
-    };
+    $('#btnReset').onclick = () => { if(!confirm('Reset all payment data for this month?')) return; const m=$('#month').value; delete store.payments[m]; save(); render(); };
 
-    $('#hideToggle').onchange = (e) => {
-      hideAmounts = e.target.checked;
-      localStorage.setItem(HIDE_KEY, hideAmounts ? '1' : '0');
-      render();
-    };
+    $('#hideToggle').onchange = (e)=>{ hideAmounts = e.target.checked; localStorage.setItem(HIDE_KEY, hideAmounts?'1':'0'); render(); };
+    $('#totalCurrency').onchange = (e)=>{ totalCurrency = e.target.value; localStorage.setItem(CURRENCY_KEY, totalCurrency); render(); };
 
-    $('#totalCurrency').onchange = (e) => {
-      totalCurrency = e.target.value;
-      localStorage.setItem(CURRENCY_KEY, totalCurrency);
-      render();
-    };
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=> ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]) ); }
 
-    function escapeHtml(s) {
-      return (s || '').replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[m]));
-    }
-
-    // Add card section toggle
-    let addCardExpanded = false;
-    $('#addCardToggle').onclick = () => {
-      addCardExpanded = !addCardExpanded;
-      $('#addCardContent').classList.toggle('expanded', addCardExpanded);
-      $('#expandIcon').classList.toggle('expanded', addCardExpanded);
-    };
+    // Add card section toggle (default: expanded)
+    let addCardExpanded = true;
+    function syncAddCardSection(){ $('#addCardContent').classList.toggle('expanded', addCardExpanded); $('#expandIcon').classList.toggle('expanded', addCardExpanded); }
+    $('#addCardToggle').onclick = ()=>{ addCardExpanded=!addCardExpanded; syncAddCardSection(); };
 
     // ---------- Init ----------
-    (function init() {
-      const d = new Date();
-      d.setDate(1);
-      $('#month').value = ym(d);
-      $('#monthDisplay').textContent = formatMonthDisplay($('#month').value);
-      $('#hideToggle').checked = hideAmounts;
-      $('#totalCurrency').value = totalCurrency;
-      render();
-    })();
+    (function init(){ const d=new Date(); d.setDate(1); $('#month').value = ym(d); $('#monthDisplay').textContent = formatMonthDisplay($('#month').value); $('#hideToggle').checked = hideAmounts; $('#totalCurrency').value = totalCurrency; syncAddCardSection(); render(); })();
   </script>
 </body>
 </html>
