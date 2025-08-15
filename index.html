@@ -2,26 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>Credit Card Dues Tracker</title>
   <style>
-    :root {
-      --bg: #0b0f14; --panel:#101823; --card:#131f2c; --text:#e6edf3; --muted:#9aa7b5; --accent:#4f46e5; --ok:#22c55e; --warn:#f59e0b; --danger:#ef4444;
-    }
+    :root { --bg:#0b0f14; --card:#131f2c; --text:#e6edf3; --muted:#9aa7b5; --accent:#4f46e5; }
     *{box-sizing:border-box}
+    html,body{-webkit-text-size-adjust:100%}
     body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+    .wrap{max-width:1100px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px)+16px) 16px calc(env(safe-area-inset-bottom,0px)+24px)}
     h1{font-size:clamp(22px,3vw,28px);margin:0 0 18px}
     .grid{display:grid;gap:16px;grid-template-columns:2fr 1fr}
     .card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
     .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
     label{font-size:12px;color:var(--muted)}
-    input,select,button,textarea{border-radius:10px;border:1px solid #223247;background:#0f1722;color:var(--text);padding:10px 12px}
-    input::placeholder{color:#64748b}
-    button{border:1px solid #2a3b57;cursor:pointer}
-    button.primary{background:var(--accent);border-color:transparent}
-    button.ghost{background:transparent}
-    button.danger{background:transparent;border-color:#3a2230;color:#ffb4c0}
+    input,select,button,textarea{border-radius:12px;border:1px solid #223247;background:#0f1722;color:var(--text);padding:12px 14px;font-size:16px;min-height:44px}
+    button{border:1px solid #2a3b57;cursor:pointer;-webkit-appearance:none;appearance:none}
     table{width:100%;border-collapse:separate;border-spacing:0 8px}
     th,td{padding:10px 12px;text-align:left}
     th{color:var(--muted);font-weight:600;font-size:12px}
@@ -31,21 +28,14 @@
     .pill{font-size:12px;padding:4px 8px;border-radius:999px}
     .pill.due{background:#1a2432;color:#f8fafc;border:1px solid #2b3b55}
     .pill.paid{background:#0f2a1a;border:1px solid #1f5c3b;color:#c7f9d4}
-    .totals{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-    .total{font-size:22px;font-weight:700}
+    .totals{display:flex;flex-direction:column;margin-top:8px;gap:4px}
+    .total{font-size:18px;font-weight:700}
     .muted{color:var(--muted)}
-    .section-title{margin:0 0 8px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
-    .list{display:flex;flex-direction:column;gap:8px}
-    .ccitem{display:flex;justify-content:space-between;align-items:center;background:#0f1824;border:1px solid #20314d;border-radius:12px;padding:10px 12px}
-    .ccname{font-weight:600}
-    .right{display:flex;gap:8px}
-    .danger-link{color:#ffb4b4;cursor:pointer}
-    .hr{height:1px;background:#1e2a3d;margin:12px 0}
-    .hint{font-size:12px;color:var(--muted)}
-    .footer{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap}
-    .month-switch{display:flex;gap:8px;align-items:center}
-    details summary{cursor:pointer;list-style:none}
-    details{margin-bottom:8px}
+    .collapsible-header{cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;user-select:none}
+    .collapsible-content{display:none;margin-top:8px}
+    .btn{padding:12px 14px;border-radius:12px}
+    .btn.primary{background:var(--accent);border-color:transparent}
+    .month-controls button{width:44px;height:44px;border-radius:12px}
     @media (max-width: 900px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
@@ -53,22 +43,19 @@
   <div class="wrap">
     <h1>💳 Credit Card Dues Tracker</h1>
     <div class="grid">
-      <!-- LEFT: Payments view -->
       <div class="card">
         <div class="row" style="justify-content:space-between;align-items:center">
-          <div class="row month-switch">
+          <div class="row month-controls">
             <label for="month">Month</label>
             <input type="month" id="month" />
-            <button class="ghost" id="btnPrev" title="Previous month">◀</button>
-            <button class="ghost" id="btnNext" title="Next month">▶</button>
+            <button id="btnPrev" aria-label="Previous month">◀</button>
+            <button id="btnNext" aria-label="Next month">▶</button>
           </div>
           <div class="row">
-            <button class="primary" id="btnAddPayment">Add/Update Payment</button>
-            <button id="btnMarkAllPaid">Mark All Paid</button>
+            <button class="btn primary" id="btnAddPayment">Add/Update Payment</button>
+            <button class="btn" id="btnMarkAllPaid">Mark All Paid</button>
           </div>
         </div>
-        <div class="hr"></div>
-
         <table>
           <thead>
             <tr>
@@ -81,266 +68,142 @@
           </thead>
           <tbody id="paymentsTbody"></tbody>
         </table>
-
         <div class="totals">
-          <div class="muted">Totals for <span id="totalsMonth"></span></div>
-          <div class="right" style="gap:16px;align-items:baseline">
-            <div><div class="muted" style="font-size:12px">Total</div><div class="total" id="totalDue">0.00</div></div>
-            <div><div class="muted" style="font-size:12px">Paid</div><div class="total" id="totalPaid">0.00</div></div>
-            <div><div class="muted" style="font-size:12px">Remaining</div><div class="total" id="totalRemain">0.00</div></div>
-          </div>
+          <div class="total" id="totalDue">Total Due: 0</div>
+          <div class="total" id="totalPaid">Total Paid: 0</div>
+          <div class="total" id="totalRemaining">Remaining: 0</div>
         </div>
       </div>
 
-      <!-- RIGHT: Cards + Tools -->
       <div class="card">
-        <details id="secCards" open>
-          <summary class="section-title">Cards</summary>
+        <div class="collapsible-header" onclick="toggleSection('cardsSection', this)">Cards <span>▼</span></div>
+        <div id="cardsSection" class="collapsible-content">
           <div class="row">
-            <input id="ccName" placeholder="Card name (e.g., Chase Sapphire)" style="flex:1" />
-            <input id="ccLast4" placeholder="Last 4 (optional)" style="width:140px" maxlength="4" />
-            <input id="ccLimit" type="number" placeholder="Limit (optional)" style="width:160px" />
-            <button class="primary" id="btnAddCard">Add Card</button>
+            <input id="ccName" placeholder="Card name" />
+            <input id="ccLast4" placeholder="Last 4" maxlength="4" />
+            <input id="ccLimit" type="number" placeholder="Limit" inputmode="decimal" />
+            <button class="btn primary" id="btnAddCard">Add Card</button>
           </div>
-          <div class="list" id="cardsList" style="margin-top:12px"></div>
-        </details>
-
-        <div class="hr"></div>
-        <details id="secData" open>
-          <summary class="section-title">Data</summary>
-          <div class="row">
-            <button id="btnExport">Export CSV</button>
-            <input type="file" id="fileImport" accept="application/json" style="display:none" />
-            <button id="btnImport">Import JSON</button>
-            <button class="danger" id="btnReset">Reset All</button>
-          </div>
-          <div class="footer hint">Data is stored locally in your browser using <b>localStorage</b>. Export CSV regularly for backup.</div>
-        </details>
+          <div id="cardsList" style="margin-top:12px"></div>
+        </div>
+        <div class="collapsible-header" onclick="toggleSection('dataSection', this)">Data <span>▼</span></div>
+        <div id="dataSection" class="collapsible-content">
+          <button class="btn" id="btnExport">Export CSV</button>
+          <button class="btn" id="btnReset">Reset All</button>
+        </div>
       </div>
     </div>
   </div>
-
   <script>
-    // ---------- Simple Store ----------
-    const STORE_KEY = 'ccapp_v2';
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => Array.from(document.querySelectorAll(sel));
+    const STORE_KEY = 'ccapp_v3';
+    const $ = s=>document.querySelector(s);
+    const $$ = s=>Array.from(document.querySelectorAll(s));
+    const fmt0 = n => new Intl.NumberFormat(undefined,{maximumFractionDigits:0}).format(Math.round(+n||0));
+    const ym = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; // local, avoids UTC jumps
 
-    function loadStore(){
-      try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {cards:[], payments:{}} }catch(e){ return {cards:[],payments:{}} }
-    }
-    function saveStore(data){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+    let store;
+    try{ store = JSON.parse(localStorage.getItem(STORE_KEY)) || {cards:[],payments:{}} }catch(e){ store = {cards:[],payments:{}} }
+    function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+    function ensureMonth(m){ if(!store.payments[m]) store.payments[m]={}; }
 
-    let store = loadStore();
-
-    // ---------- Helpers ----------
-    const fmt = n => (Number(n||0)).toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
-    const ym = date => date.toISOString().slice(0,7);
-    const todayYM = ym(new Date());
-
-    function ensureMonthExists(month){
-      if(!store.payments[month]) store.payments[month] = {};
-    }
-
-    function setMonthPicker(val){
-      const m = $('#month');
-      m.value = val; $('#totalsMonth').textContent = val;
-    }
-
-    // ---------- Rendering ----------
-    function renderCards(){
-      const list = $('#cardsList');
-      if(store.cards.length === 0){
-        list.innerHTML = `<div class="hint">No cards yet. Add your first card above.</div>`;
-        return;
-      }
-      list.innerHTML = '';
-      store.cards.forEach(card=>{
-        const div = document.createElement('div');
-        div.className = 'ccitem';
-        div.innerHTML = `
-          <div>
-            <div class="ccname">${escapeHtml(card.name)}${card.last4?` •••• ${escapeHtml(card.last4)}`:''}</div>
-            <div class="hint">Limit: ${card.limit?fmt(card.limit):'—'}</div>
-          </div>
-          <div class="right">
-            <button class="ghost" data-edit="${card.id}">Edit</button>
-            <button class="danger" data-delete="${card.id}">Delete</button>
-          </div>`;
-        list.appendChild(div);
-      });
-
-      // actions
-      list.querySelectorAll('[data-delete]').forEach(btn=>btn.addEventListener('click', e=>{
-        const id = e.currentTarget.getAttribute('data-delete');
-        if(confirm('Delete this card? Its past payments will remain in data.')){
-          store.cards = store.cards.filter(c=>String(c.id)!==String(id));
-          saveStore(store); renderAll();
-        }
-      }));
-      list.querySelectorAll('[data-edit]').forEach(btn=>btn.addEventListener('click', e=>{
-        const id = e.currentTarget.getAttribute('data-edit');
-        const card = store.cards.find(c=>String(c.id)===String(id));
-        const name = prompt('Card name', card.name) ?? card.name;
-        const last4 = prompt('Last 4 (optional)', card.last4||'') ?? card.last4;
-        const limit = prompt('Limit (optional)', card.limit||'') ?? card.limit;
-        card.name = name.trim(); card.last4 = (last4||'').trim(); card.limit = Number(limit)||'';
-        saveStore(store); renderAll();
-      }));
-    }
-
-    function renderPayments(){
-      const month = $('#month').value;
-      ensureMonthExists(month);
-      const tbody = $('#paymentsTbody');
-      tbody.innerHTML = '';
-      let total = 0; let paid = 0;
-
-      // Guarantee every card has an entry (may be empty) so users can fill quickly
-      store.cards.forEach(card=>{ if(!store.payments[month][card.id]) store.payments[month][card.id] = {amount:'', dueDate:'', paid:false}; });
-
-      store.cards.forEach(card=>{
-        const p = store.payments[month][card.id] || {amount:'',dueDate:'',paid:false};
-        const tr = document.createElement('tr');
-        const paidClass = p.paid ? 'paid' : 'due';
-        tr.innerHTML = `
-          <td>${escapeHtml(card.name)}${card.last4?` •••• ${escapeHtml(card.last4)}`:''}</td>
-          <td>
-            <input type="number" step="0.01" data-amount="${card.id}" value="${p.amount}" placeholder="0.00" style="width:140px" />
-          </td>
-          <td>
-            <input type="date" data-date="${card.id}" value="${p.dueDate||''}" />
-          </td>
-          <td>
-            <span class="pill ${paidClass}">${p.paid? 'Paid' : 'Unpaid'}</span>
-          </td>
-          <td>
-            <button data-togglepaid="${card.id}">${p.paid? 'Unmark' : 'Mark Paid'}</button>
-          </td>`;
+    function render(){
+      const m=$('#month').value; ensureMonth(m);
+      const tbody=$('#paymentsTbody'); tbody.innerHTML='';
+      let total=0, paid=0;
+      store.cards.forEach(c=>{
+        if(!store.payments[m][c.id]) store.payments[m][c.id]={amount:'',dueDate:'',paid:false};
+        const p=store.payments[m][c.id];
+        total += +p.amount||0; if(p.paid) paid += +p.amount||0;
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td>${escapeHtml(c.name)}${c.last4?` •••• ${escapeHtml(c.last4)}`:''}</td>
+          <td><input type='number' inputmode='decimal' step='0.01' data-amount='${c.id}' value='${p.amount}' /></td>
+          <td><input type='date' data-date='${c.id}' value='${p.dueDate||''}' /></td>
+          <td>${p.paid?'<span class="pill paid">Paid</span>':'<span class="pill due">Unpaid</span>'}</td>
+          <td><button class='btn' data-togglepaid='${c.id}'>${p.paid?'Unmark':'Mark Paid'}</button></td>`;
         tbody.appendChild(tr);
-        total += Number(p.amount||0);
-        if(p.paid) paid += Number(p.amount||0);
       });
-
-      $('#totalDue').textContent = fmt(total);
-      $('#totalPaid').textContent = fmt(paid);
-      $('#totalRemain').textContent = fmt(total - paid);
+      $('#totalDue').textContent=`Total Due: ${fmt0(total)}`;
+      $('#totalPaid').textContent=`Total Paid: ${fmt0(paid)}`;
+      $('#totalRemaining').textContent=`Remaining: ${fmt0(total-paid)}`;
 
       // Wire inputs
-      $$('input[data-amount]').forEach(inp=> inp.addEventListener('change', e=>{
-        const id = e.target.getAttribute('data-amount');
-        ensureMonthExists(month);
-        const entry = store.payments[month][id] || {amount:'',dueDate:'',paid:false};
-        entry.amount = Number(e.target.value||0);
-        store.payments[month][id] = entry; saveStore(store); renderPayments();
-      }));
-      $$('input[data-date]').forEach(inp=> {
-        // Prevent Chrome from inserting today's date on first click; open picker only
-        inp.addEventListener('mousedown', e=>{ e.preventDefault(); inp.showPicker && inp.showPicker(); });
-        inp.addEventListener('change', e=>{
-          const id = e.target.getAttribute('data-date');
-          ensureMonthExists(month);
-          const entry = store.payments[month][id] || {amount:'',dueDate:'',paid:false};
-          entry.dueDate = e.target.value; store.payments[month][id] = entry; saveStore(store); renderPayments();
-        });
+      $$('input[data-amount]').forEach(inp=> inp.onchange=e=>{
+        const m=$('#month').value; const id=e.target.dataset.amount;
+        ensureMonth(m); const entry=store.payments[m][id]||{amount:'',dueDate:'',paid:false};
+        entry.amount = +e.target.value||0; store.payments[m][id]=entry; save(); render();
       });
-      $$('button[data-togglepaid]').forEach(btn=> btn.addEventListener('click', e=>{
-        const id = e.currentTarget.getAttribute('data-togglepaid');
-        const entry = store.payments[month][id] || {amount:'',dueDate:'',paid:false};
-        entry.paid = !entry.paid; store.payments[month][id] = entry; saveStore(store); renderPayments();
-      }));
+      $$('input[data-date]').forEach(inp=> inp.onchange=e=>{
+        const m=$('#month').value; const id=e.target.dataset.date;
+        ensureMonth(m); const entry=store.payments[m][id]||{amount:'',dueDate:'',paid:false};
+        entry.dueDate = e.target.value; store.payments[m][id]=entry; save(); render();
+      });
+      $$('button[data-togglepaid]').forEach(btn=> btn.onclick=e=>{
+        const m=$('#month').value; const id=e.target.dataset.togglepaid;
+        const entry=store.payments[m][id]; entry.paid=!entry.paid; save(); render();
+      });
     }
 
-    function renderAll(){ renderCards(); renderPayments(); }
-
-    // ---------- Actions ----------
-    $('#btnAddCard').addEventListener('click', ()=>{
-      const name = $('#ccName').value.trim();
-      if(!name){ alert('Enter a card name'); return; }
-      const last4 = $('#ccLast4').value.trim();
-      const limit = Number($('#ccLimit').value.trim())||'';
-      const id = Date.now().toString(36)+Math.random().toString(36).slice(2,7);
-      store.cards.push({id, name, last4, limit});
-      saveStore(store); $('#ccName').value=''; $('#ccLast4').value=''; $('#ccLimit').value=''; renderAll();
-    });
-
-    $('#btnAddPayment').addEventListener('click', ()=>{
-      if(store.cards.length===0){ alert('Add a card first.'); return; }
-      const month = $('#month').value; ensureMonthExists(month);
-      // Find a card without amount, else edit the first
-      const targetCard = store.cards.find(c=>{ const p = store.payments[month][c.id]; return !p || !p.amount }) || store.cards[0];
-      const current = store.payments[month][targetCard.id] || {};
-      const amt = prompt(`Amount due for ${targetCard.name} (${month})`, current.amount ?? '');
-      if(amt===null) return;
-      const due = prompt('Due date (YYYY-MM-DD)', current.dueDate ?? '');
-      ensureMonthExists(month);
-      store.payments[month][targetCard.id] = { amount: Number(amt||0), dueDate: (due||''), paid: false };
-      saveStore(store); renderPayments();
-    });
-
-    $('#btnMarkAllPaid').addEventListener('click', ()=>{
-      const month = $('#month').value; ensureMonthExists(month);
-      if(!confirm('Mark all visible payments as PAID?')) return;
-      Object.keys(store.payments[month]).forEach(id=>{ store.payments[month][id].paid = true; });
-      saveStore(store); renderPayments();
-    });
-
-    $('#btnPrev').addEventListener('click', ()=> shiftMonth(-1));
-    $('#btnNext').addEventListener('click', ()=> shiftMonth(1));
+    $('#btnAddCard').onclick=()=>{
+      const name=$('#ccName').value.trim(); if(!name) return alert('Enter card name');
+      const last4=$('#ccLast4').value.trim(); const limit=$('#ccLimit').value.trim();
+      store.cards.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7), name, last4, limit});
+      save(); $('#ccName').value=''; $('#ccLast4').value=''; $('#ccLimit').value=''; render();
+    };
 
     function shiftMonth(delta){
-      let base;
-      if($('#month').value){ base = new Date($('#month').value+'-01T00:00:00'); }
-      if(!base || isNaN(base)) base = new Date();
-      base.setDate(1);
+      const val=$('#month').value; let y,m,base;
+      if(val && /^\d{4}-\d{2}$/.test(val)){ [y,m]=val.split('-').map(Number); base=new Date(y,m-1,1); }
+      else { base=new Date(); base.setDate(1); }
       base.setMonth(base.getMonth()+delta);
-      const m = ym(base); setMonthPicker(m); renderPayments();
+      $('#month').value = ym(base); render();
     }
 
-    $('#month').addEventListener('change', ()=>{ setMonthPicker($('#month').value); renderPayments(); });
+    $('#btnPrev').addEventListener('click', ()=>shiftMonth(-1));
+    $('#btnNext').addEventListener('click', ()=>shiftMonth(1));
 
-    // CSV export
-    $('#btnExport').addEventListener('click', ()=>{
-      const month = $('#month').value;
-      const rows = [['month','card','last4','amount','due_date','paid']];
-      ensureMonthExists(month);
-      store.cards.forEach(card=>{
-        const p = store.payments[month][card.id] || {amount:'', dueDate:'', paid:false};
-        rows.push([month, card.name, card.last4||'', String(p.amount||''), p.dueDate||'', p.paid? 'yes':'no']);
+    $('#btnAddPayment').onclick=()=>{
+      if(store.cards.length===0) return alert('Add a card first.');
+      const m=$('#month').value; ensureMonth(m);
+      const target=store.cards[0];
+      const current=store.payments[m][target.id]||{};
+      const amt=prompt(`Amount due for ${target.name} (${m})`, current.amount??''); if(amt===null) return;
+      const due=prompt('Due date (YYYY-MM-DD)', current.dueDate??'');
+      store.payments[m][target.id]={amount:+amt||0,dueDate:due||'',paid:false}; save(); render();
+    };
+
+    $('#btnMarkAllPaid').onclick=()=>{
+      const m=$('#month').value; ensureMonth(m);
+      if(!confirm('Mark all visible payments as PAID?')) return;
+      Object.keys(store.payments[m]).forEach(id=> store.payments[m][id].paid=true); save(); render();
+    };
+
+    $('#btnExport').onclick=()=>{
+      const m=$('#month').value; ensureMonth(m);
+      const rows=[["month","card","last4","amount","due_date","paid"]];
+      store.cards.forEach(c=>{
+        const p=store.payments[m][c.id]||{amount:'',dueDate:'',paid:false};
+        rows.push([m,c.name,c.last4||'',String(p.amount||''),p.dueDate||'',p.paid?'yes':'no']);
       });
-      const csv = rows.map(r => r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-      const blob = new Blob([csv], {type:'text/csv'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download=`ccapp-${month}.csv`; a.click();
-      URL.revokeObjectURL(url);
-    });
+      const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`ccapp-${m}.csv`; a.click();
+    };
 
-    // Keep JSON import (optional)
-    $('#btnImport').addEventListener('click', ()=> $('#fileImport').click());
-    $('#fileImport').addEventListener('change', e=>{
-      const file = e.target.files[0]; if(!file) return;
-      const reader = new FileReader();
-      reader.onload = ()=>{
-        try{
-          const data = JSON.parse(reader.result);
-          if(!data || !data.cards || !data.payments) throw new Error('Invalid file');
-          store = data; saveStore(store); renderAll(); alert('Import successful.');
-        }catch(err){ alert('Import failed: '+err.message); }
-      };
-      reader.readAsText(file);
-    });
+    $('#btnReset').onclick=()=>{ if(confirm('Reset ALL data?')){ store={cards:[],payments:{}}; save(); render(); }};
 
-    $('#btnReset').addEventListener('click', ()=>{
-      if(confirm('Reset ALL data? This cannot be undone.')){
-        store = {cards:[],payments:{}}; saveStore(store); renderAll();
-      }
-    });
-
+    function toggleSection(id, header){
+      const el=document.getElementById(id); const open=el.style.display==='block';
+      el.style.display=open?'none':'block'; header.querySelector('span').textContent=open?'▼':'▲';
+    }
     function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
 
-    // ---------- Init ----------
-    setMonthPicker(todayYM);
-    renderAll();
+    // Init
+    (function init(){
+      const d=new Date(); d.setDate(1); $('#month').value=ym(d); render();
+      // Open sections by default on first load
+      toggleSection('cardsSection', document.querySelector('.collapsible-header'));
+      toggleSection('dataSection', document.querySelectorAll('.collapsible-header')[1]);
+    })();
   </script>
 </body>
 </html>
