@@ -33,20 +33,9 @@
       transition: background 0.2s ease, transform 0.1s ease;
       line-height: 1.2;
     }
-    button.secondary {
-      background: #1b2433;
-      color: #d7dde7;
-      border-color: #2b3b55;
-    }
-    button.destructive {
-      background: #2b1c1c;
-      color: #ffb4b4;
-      border-color: #4a2b2b;
-    }
-    button:active {
-      opacity: 0.9;
-      transform: scale(0.98);
-    }
+    button.secondary { background:#1b2433; color:#d7dde7; border-color:#2b3b55 }
+    button.destructive { background:#2b1c1c; color:#ffb4b4; border-color:#4a2b2b }
+    button:active { opacity:.9; transform:scale(.98) }
 
     .table-wrap{overflow-x:auto}
     table{width:100%;min-width:720px;border-collapse:separate;border-spacing:0 8px;margin-top:8px}
@@ -63,14 +52,183 @@
     .chip{background:#0f1722;border:1px solid #20314d;color:#e6edf3;border-radius:999px;padding:6px 10px;font-weight:700;font-size:14px}
     .hidden-amount{filter:blur(7px)}
 
-    @media (max-width:480px){
-      .wrap{padding:0 8px} 
-      input[type="month"]{width:170px}
-      button{padding:10px;min-width:36px;font-size:14px}
-    }
+    @media (max-width:480px){ .wrap{padding:0 8px} input[type="month"]{width:170px} button{padding:10px;min-width:36px;font-size:14px} }
   </style>
 </head>
 <body>
-  <!-- Full HTML and JS app code goes here -->
+  <div class="wrap">
+    <h1>💳 Credit Card Dues Tracker</h1>
+
+    <!-- Month + Table + Totals -->
+    <div class="card">
+      <div class="row">
+        <div class="row" style="gap:8px">
+          <label for="month">Month</label>
+          <input type="month" id="month" />
+          <button id="btnPrev" class="secondary">◀</button>
+          <button id="btnNext" class="secondary">▶</button>
+        </div>
+        <div class="row" style="gap:8px">
+          <button id="btnToggleAmounts" class="secondary">Hide amounts</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Card</th><th>Amount</th><th>Due Date</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="paymentsTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="totals">
+        <span class="chip" id="chipTotal">Total: 0</span>
+        <span class="chip" id="chipPaid">Paid: 0</span>
+        <span class="chip" id="chipRemain">Remaining: 0</span>
+      </div>
+    </div>
+
+    <!-- Add / Edit Cards -->
+    <div class="card">
+      <div class="row" style="gap:8px">
+        <input id="ccName" placeholder="Card name" style="flex:1" />
+        <div class="row" style="gap:8px">
+          <button id="btnAddCard" class="primary">Add</button>
+          <button id="btnEditCards" class="secondary">Edit</button>
+        </div>
+      </div>
+      <div id="cardsList" style="margin-top:8px;color:#9aa7b5;font-size:13px"></div>
+    </div>
+
+    <!-- Data tools -->
+    <div class="card">
+      <div class="row" style="gap:8px;justify-content:flex-end">
+        <button id="btnExport" class="secondary">Export CSV</button>
+        <button id="btnReset" class="destructive">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Store (with simple migration) ----------
+    const STORE_KEY = 'ccapp_v7';
+    const LEGACY_KEYS = ['ccapp_v5look','ccapp_v6','ccapp_v5','ccapp_v4','ccapp_v3','ccapp_v2','ccapp_v1'];
+    const HIDE_KEY = 'ccapp_hide_v1';
+    const $ = s => document.querySelector(s); const $$ = s => Array.from(document.querySelectorAll(s));
+
+    function loadStore(){
+      try{
+        const cur = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
+        if(cur && cur.cards && cur.payments) return cur;
+      }catch(e){}
+      for(const k of LEGACY_KEYS){
+        try{ const s = JSON.parse(localStorage.getItem(k)||'null'); if(s && s.cards && s.payments){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); return s; } }catch(e){}
+      }
+      return {cards:[],payments:{}};
+    }
+    let store = loadStore();
+
+    // ---------- Helpers ----------
+    const ym = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; // local time
+    const fmt = n => String(Math.round(+n||0)); // whole numbers for totals
+    function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+    function ensureMonth(m){ if(!store.payments[m]) store.payments[m] = {}; }
+
+    let hideAmounts = localStorage.getItem(HIDE_KEY)==='1';
+
+    // ---------- Render ----------
+    function render(){
+      const m = $('#month').value; ensureMonth(m);
+      const tb = $('#paymentsTbody'); tb.innerHTML = '';
+      let total=0, paid=0;
+
+      store.cards.forEach(c=>{
+        if(!store.payments[m][c.id]) store.payments[m][c.id] = {amount:'', dueDate:'', paid:false};
+        const p = store.payments[m][c.id];
+        total += +p.amount||0; if(p.paid) paid += +p.amount||0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}</td>
+          <td><input type='number' class='${hideAmounts?"hidden-amount":""}' inputmode='decimal' step='0.01' data-amount='${c.id}' value='${p.amount}' /></td>
+          <td><input type='date' data-date='${c.id}' value='${p.dueDate||''}' /></td>
+          <td>${p.paid?'<span class="pill paid">Paid</span>':'<span class="pill due">Unpaid</span>'}</td>
+          <td><button class='secondary' data-togglepaid='${c.id}'>${p.paid?'Unmark':'Mark Paid'}</button></td>`;
+        tb.appendChild(tr);
+      });
+
+      $('#chipTotal').textContent = `Total: ${fmt(total)}`;
+      $('#chipPaid').textContent = `Paid: ${fmt(paid)}`;
+      $('#chipRemain').textContent = `Remaining: ${fmt(total-paid)}`;
+      ['chipTotal','chipPaid','chipRemain'].forEach(id=>{ const el=$('#'+id); el.classList.toggle('hidden-amount', hideAmounts); });
+
+      // Wire events for this render
+      $$('input[data-amount]').forEach(inp=> inp.onchange = e => {
+        const id = e.target.dataset.amount; const m = $('#month').value; ensureMonth(m);
+        store.payments[m][id].amount = +e.target.value||0; save(); render();
+      });
+      $$('input[data-date]').forEach(inp=> inp.onchange = e => {
+        const id = e.target.dataset.date; const m = $('#month').value; ensureMonth(m);
+        store.payments[m][id].dueDate = e.target.value; save(); render();
+      });
+      $$('button[data-togglepaid]').forEach(btn=> btn.onclick = e => {
+        const id = e.target.dataset.togglepaid; const m = $('#month').value; ensureMonth(m);
+        store.payments[m][id].paid = !store.payments[m][id].paid; save(); render();
+      });
+
+      renderCardsList();
+    }
+
+    function renderCardsList(){
+      const list = $('#cardsList');
+      if(!store.cards.length){ list.textContent = 'No cards yet.'; return; }
+      list.innerHTML = store.cards.map(c=> `${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}${c.limit?` — Limit: ${escapeHtml(String(c.limit))}`:''}`).join('<br>');
+    }
+
+    // ---------- Card actions ----------
+    $('#btnAddCard').onclick = () => {
+      const name = $('#ccName').value.trim(); if(!name) return alert('Enter card name');
+      const last4 = prompt('Last 4 digits (optional)') || '';
+      const limitStr = prompt('Limit amount (optional)');
+      const limit = limitStr && !isNaN(+limitStr) ? +limitStr : '';
+      store.cards.push({id: Date.now(), name, last4: last4.trim(), limit}); save();
+      $('#ccName').value=''; render();
+    };
+
+    $('#btnEditCards').onclick = () => {
+      if(!store.cards.length) return alert('No cards to edit.');
+      const key = prompt('Enter card name or last 4 to edit:', $('#ccName').value.trim());
+      if(!key) return;
+      const card = store.cards.find(c => c.name.toLowerCase()===key.toLowerCase() || (c.last4||'')===key);
+      if(!card) return alert('Card not found. Use exact name or last 4.');
+      const newName = prompt('Card name', card.name); if(newName===null) return;
+      const newLast4 = prompt('Last 4 (optional)', card.last4||''); if(newLast4===null) return;
+      const newLimitStr = prompt('Limit (optional)', card.limit||''); if(newLimitStr===null) return;
+      card.name = newName.trim()||card.name; card.last4 = (newLast4||'').trim(); card.limit = newLimitStr.trim()===''? '':(+newLimitStr||'');
+      save(); render();
+    };
+
+    // ---------- Month + utilities ----------
+    $('#btnPrev').onclick = () => shiftMonth(-1);
+    $('#btnNext').onclick = () => shiftMonth(1);
+    function shiftMonth(d){ let date = $('#month').value ? new Date($('#month').value+'-01T00:00:00') : new Date(); date.setDate(1); date.setMonth(date.getMonth()+d); $('#month').value = ym(date); render(); }
+
+    $('#btnExport').onclick = () => {
+      const m = $('#month').value; ensureMonth(m);
+      const rows = [["Card","Amount","Due Date","Status"]];
+      store.cards.forEach(c => { const p = store.payments[m][c.id] || {}; rows.push([c.name, p.amount||'', p.dueDate||'', p.paid?'Paid':'Unpaid']); });
+      const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
+');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download = 'payments.csv'; a.click();
+    };
+
+    $('#btnReset').onclick = () => { if(confirm('Reset all data?')){ store = {cards:[],payments:{}}; save(); render(); } };
+    $('#btnToggleAmounts').onclick = () => { hideAmounts = !hideAmounts; localStorage.setItem(HIDE_KEY, hideAmounts?'1':'0'); render(); };
+
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+
+    // ---------- Init ----------
+    (function init(){ const d=new Date(); d.setDate(1); $('#month').value = ym(d); render(); })();
+  </script>
 </body>
 </html>
