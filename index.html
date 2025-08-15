@@ -1,248 +1,184 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Credit Card Dues Tracker</title>
-<style>
-:root { --bg:#fff; --card:#f9f9f9; --text:#000; --muted:#666; --accent:#007aff; --ok:#34c759; --danger:#ff3b30; }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
-.wrap{max-width:1000px;margin:0 auto;padding:16px}
-h1{font-size:22px;margin:0 0 12px;text-align:center}
-.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:16px;box-shadow:0 2px 5px rgba(0,0,0,.1)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-label{font-size:14px;color:var(--muted)}
-input,button{border-radius:8px;border:1px solid #ccc;padding:8px;font-size:16px;min-width:0}
-button{background:var(--accent);color:#fff;border:none;cursor:pointer}
-button.secondary{background:#e5e7eb;color:#111}
-button:active{opacity:.7}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Credit Card Dues Tracker</title>
+  <style>
+    :root { --bg:#0b0f14; --panel:#101823; --card:#131f2c; --text:#e6edf3; --muted:#9aa7b5; --accent:#4f46e5; --ok:#22c55e; --danger:#ef4444; }
+    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1100px;margin:24px auto;padding:0 12px}
+    h1{font-size:22px;margin:0 0 12px;text-align:center}
 
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;margin-top:8px;min-width:700px}
-th,td{text-align:left;padding:8px;font-size:14px}
-th{color:var(--muted);font-weight:500}
-tr:nth-child(even){background:#f2f2f2}
-.pill{font-size:12px;padding:4px 8px;border-radius:999px;color:#fff;white-space:nowrap}
-.paid{background:var(--ok)}
-.due{background:var(--danger)}
-.totals-row{display:flex;gap:8px;margin-top:8px;justify-content:flex-end;flex-wrap:wrap}
-.total-box{background:#eee;border-radius:8px;padding:6px 8px;font-size:14px;font-weight:600}
-.total-box.money{min-width:120px;text-align:center}
+    .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);margin-bottom:14px}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+    label{font-size:12px;color:var(--muted)}
+    input,button{border-radius:10px;border:1px solid #223247;background:#0f1722;color:var(--text);padding:10px 12px;font-size:16px;min-width:0}
+    button{cursor:pointer;appearance:none;-webkit-appearance:none;border:1px solid #2a3b57}
+    button.primary{background:var(--accent);border-color:transparent;color:#fff}
+    button.secondary{background:#1b2433;color:#d7dde7;border-color:#2b3b55}
+    button.destructive{background:#2b1c1c;border-color:#4a2b2b;color:#ffb4b4}
+    button:active{opacity:.9}
 
-/* Privacy mask */
-.masked .money{filter: blur(8px)}
+    .table-wrap{overflow-x:auto}
+    table{width:100%;min-width:720px;border-collapse:separate;border-spacing:0 8px;margin-top:8px}
+    th,td{text-align:left;padding:8px 10px;font-size:14px}
+    th{color:var(--muted);font-weight:600}
+    tr{background:#0f1824}
+    tr td:first-child, tr th:first-child{border-top-left-radius:10px;border-bottom-left-radius:10px}
+    tr td:last-child, tr th:last-child{border-top-right-radius:10px;border-bottom-right-radius:10px}
+    .pill{font-size:12px;padding:4px 8px;border-radius:999px;white-space:nowrap}
+    .pill.paid{background:#0f2a1a;border:1px solid #1f5c3b;color:#c7f9d4}
+    .pill.due{background:#291b1b;border:1px solid #563131;color:#ffd2d2}
 
-/* Lock overlay */
-#lockOverlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px);}
-#lockCard{background:#fff;color:#111;max-width:360px;width:100%;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:16px}
-#lockCard h2{margin:0 0 8px;font-size:18px}
-#lockCard p{margin:0 0 8px;color:#444}
-#lockCard input{width:100%;text-align:center;letter-spacing:8px;font-weight:700}
-#lockCard .row{justify-content:flex-end}
+    .totals{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:10px;flex-wrap:wrap}
+    .chip{background:#0f1722;border:1px solid #20314d;color:#e6edf3;border-radius:999px;padding:6px 10px;font-weight:700;font-size:14px}
+    .hidden-amount{filter:blur(7px)}
 
-</style>
+    @media (max-width:480px){.wrap{padding:0 8px} input[type="month"]{width:170px}}
+  </style>
 </head>
 <body>
-<div id="app" clp">
-  <h1>💳 Credit Card Dues Tracker</h1>
+  <div class="wrap">
+    <h1>💳 Credit Card Dues Tracker</h1>
 
-  <div class="card">
-    <div class="row" style="justify-content:space-between;flex-wrap:nowrap;overflow-x:auto">
-      <div class="row" style="gap:8px">
-        <label for="month">Month</label>
-        <input type="month" id="month" />
+    <div class="card">
+      <div class="row">
+        <div class="row" style="gap:8px">
+          <label for="month">Month</label>
+          <input type="month" id="month" />
+          <button id="btnPrev" class="secondary">◀</button>
+          <button id="btnNext" class="secondary">▶</button>
+        </div>
+        <div class="row" style="gap:8px">
+          <button id="btnToggleAmounts" class="secondary">Hide amounts</button>
+        </div>
       </div>
-      <div class="row" style="gap:8px">
-        <button class="secondary" id="btnPrev">◀</button>
-        <button class="secondary" id="btnNext">▶</button>
-        <button class="secondary" id="btnToggleMask">Hide amounts</button>
-        <button class="secondary" id="btnLock">Lock</button>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Card</th><th>Amount</th><th>Due Date</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="paymentsTbody"></tbody>
+        </table>
       </div>
-    </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Card</th><th>Amount</th><th>Due Date</th><th>Status</th><th></th></tr></thead>
-        <tbody id="paymentsTbody"></tbody>
-      </table>
-    </div>
-
-    <div class="totals-row">
-      <div class="total-box money" id="totalDue"></div>
-      <div class="total-box money" id="totalPaid"></div>
-      <div class="total-box money" id="totalRemaining"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="row" style="justify-content:space-between;flex-wrap:nowrap">
-      <input id="ccName" placeholder="Card name" style="flex:1" />
-      <div class="row" style="gap:8px">
-        <button id="btnAddCard">Add</button>
-        <button id="btnEditCard" class="secondary">Edit</button>
+      <div class="totals">
+        <span class="chip" id="chipTotal">Total: 0</span>
+        <span class="chip" id="chipPaid">Paid: 0</span>
+        <span class="chip" id="chipRemain">Remaining: 0</span>
       </div>
     </div>
-    <div id="cardsList" style="margin-top:8px;color:#555;font-size:13px"></div>
-  </div>
 
-  <div class="card">
-    <button id="btnExport">Export CSV</button>
-    <button id="btnReset" style="background:var(--danger)">Reset</button>
-  </div>
-</div>
+    <div class="card">
+      <div class="row" style="gap:8px">
+        <input id="ccName" placeholder="Card name" style="flex:1" />
+        <div class="row" style="gap:8px">
+          <button id="btnAddCard" class="primary">Add</button>
+          <button id="btnEditCards" class="secondary">Edit</button>
+        </div>
+      </div>
+      <div id="cardsList" style="margin-top:8px;color:#9aa7b5;font-size:13px"></div>
+    </div>
 
-<!-- Lock overlay -->
-<div id="lockOverlay">
-  <div id="lockCard">
-    <h2 id="lockTitle">Set a 4‑digit PIN</h2>
-    <p id="lockDesc">Protect your tracker with a simple code.</p>
-    <input id="pinInput" inputmode="numeric" pattern="\\d{4}" maxlength="4" placeholder="••••" />
-    <div class="row" style="margin-top:10px">
-      <button id="btnLockCancel" class="secondary">Cancel</button>
-      <button id="btnLockOk">OK</button>
+    <div class="card">
+      <div class="row" style="gap:8px;justify-content:flex-end">
+        <button id="btnExport" class="secondary">Export CSV</button>
+        <button id="btnReset" class="destructive">Reset</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-const STORE_KEY='ccapp_v6';
-const PIN_KEY='ccapp_pin_v1';
-const MASK_KEY='ccapp_masked_v1';
-const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
-let store=JSON.parse(localStorage.getItem(STORE_KEY)||'{"cards":[],"payments":{}}');
-const ym=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-const fmt=n=>String(Math.round(+n||0));
-function save(){localStorage.setItem(STORE_KEY,JSON.stringify(store));}
-function ensureMonth(m){if(!store.payments[m]) store.payments[m]={};}
+  <script>
+    const STORE_KEY='ccapp_v5look';
+    const HIDE_KEY='ccapp_hide_v1';
+    const $=s=>document.querySelector(s); const $$=s=>Array.from(document.querySelectorAll(s));
+    let store=JSON.parse(localStorage.getItem(STORE_KEY)||'{"cards":[],"payments":{}}');
+    const ym=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const fmt=n=>String(Math.round(+n||0));
+    let hideAmounts = localStorage.getItem(HIDE_KEY)==='1';
+    function save(){localStorage.setItem(STORE_KEY,JSON.stringify(store));}
+    function ensureMonth(m){if(!store.payments[m]) store.payments[m]={};}
 
-// Privacy mask
-let isMasked = localStorage.getItem(MASK_KEY)==='1';
-updateMaskClass();
-function toggleMask(){ isMasked=!isMasked; localStorage.setItem(MASK_KEY, isMasked?'1':'0'); updateMaskClass(); $('#btnToggleMask').textContent = isMasked? 'Show amounts' : 'Hide amounts'; }
-function updateMaskClass(){ document.body.classList.toggle('masked', isMasked); }
+    function render(){
+      const m=$('#month').value; ensureMonth(m);
+      const tb=$('#paymentsTbody'); tb.innerHTML='';
+      let total=0, paid=0;
+      store.cards.forEach(c=>{
+        if(!store.payments[m][c.id]) store.payments[m][c.id]={amount:'',dueDate:'',paid:false};
+        const p=store.payments[m][c.id];
+        total += +p.amount||0; if(p.paid) paid += +p.amount||0;
+        const tr=document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}</td>
+          <td><input type='number' class='${hideAmounts?"hidden-amount":""}' inputmode='decimal' step='0.01' data-amount='${c.id}' value='${p.amount}' /></td>
+          <td><input type='date' data-date='${c.id}' value='${p.dueDate||''}' /></td>
+          <td>${p.paid?'<span class="pill paid">Paid</span>':'<span class="pill due">Unpaid</span>'}</td>
+          <td><button class='secondary' data-togglepaid='${c.id}'>${p.paid?'Unmark':'Mark Paid'}</button></td>`;
+        tb.appendChild(tr);
+      });
+      $('#chipTotal').textContent=`Total: ${fmt(total)}`;
+      $('#chipPaid').textContent=`Paid: ${fmt(paid)}`;
+      $('#chipRemain').textContent=`Remaining: ${fmt(total-paid)}`;
+      ['chipTotal','chipPaid','chipRemain'].forEach(id=>{ const el=$('#'+id); if(hideAmounts) el.classList.add('hidden-amount'); else el.classList.remove('hidden-amount'); });
 
-function renderCardsList(){
-  const list=$('#cardsList');
-  if(!store.cards.length){ list.textContent='No cards yet.'; return; }
-  list.innerHTML = store.cards.map(c=>`${c.name}${c.last4?` (•••• ${c.last4})`:''}${c.limit?` — Limit: ${c.limit}`:''}`).join('<br>');
-}
+      $$("input[data-amount]").forEach(inp=> inp.onchange=e=>{ const m=$('#month').value; store.payments[m][e.target.dataset.amount].amount=+e.target.value||0; save(); render(); });
+      $$("input[data-date]").forEach(inp=> inp.onchange=e=>{ const m=$('#month').value; store.payments[m][e.target.dataset.date].dueDate=e.target.value; save(); render(); });
+      $$("button[data-togglepaid]").forEach(btn=> btn.onclick=e=>{ const id=e.target.dataset.togglepaid; const m=$('#month').value; store.payments[m][id].paid=!store.payments[m][id].paid; save(); render(); });
 
-function render(){
-  const m=$('#month').value; ensureMonth(m);
-  const tb=$('#paymentsTbody'); tb.innerHTML='';
-  let total=0, paid=0;
-  store.cards.forEach(c=>{
-    if(!store.payments[m][c.id]) store.payments[m][c.id]={amount:'',dueDate:'',paid:false};
-    const p=store.payments[m][c.id];
-    total += +p.amount||0; if(p.paid) paid += +p.amount||0;
-    const tr=document.createElement('tr');
-    tr.innerHTML = `
-      <td>${c.name}${c.last4?` (•••• ${c.last4})`:''}</td>
-      <td><input class="money" type='number' inputmode='decimal' step='0.01' data-amount='${c.id}' value='${p.amount}' /></td>
-      <td><input type='date' data-date='${c.id}' value='${p.dueDate||''}' /></td>
-      <td>${p.paid?'<span class="pill paid">Paid</span>':'<span class="pill due">Unpaid</span>'}</td>
-      <td><button class='secondary' data-togglepaid='${c.id}'>${p.paid?'Unmark':'Mark Paid'}</button></td>`;
-    tb.appendChild(tr);
-  });
-  $('#totalDue').textContent=`Total: ${fmt(total)}`;
-  $('#totalPaid').textContent=`Paid: ${fmt(paid)}`;
-  $('#totalRemaining').textContent=`Remaining: ${fmt(total-paid)}`;
-  // Mask button state
-  $('#btnToggleMask').textContent = isMasked? 'Show amounts' : 'Hide amounts';
+      renderCardsList();
+    }
 
-  // Wire inputs
-  $$("input[data-amount]").forEach(inp=> inp.onchange=e=>{ const m=$('#month').value; store.payments[m][e.target.dataset.amount].amount=+e.target.value||0; save(); render(); });
-  $$("input[data-date]").forEach(inp=> inp.onchange=e=>{ const m=$('#month').value; store.payments[m][e.target.dataset.date].dueDate=e.target.value; save(); render(); });
-  $$("button[data-togglepaid]").forEach(btn=> btn.onclick=e=>{ const id=e.target.dataset.togglepaid; const m=$('#month').value; store.payments[m][id].paid=!store.payments[m][id].paid; save(); render(); });
+    function renderCardsList(){
+      const list=$('#cardsList');
+      if(!store.cards.length){ list.textContent='No cards yet.'; return; }
+      list.innerHTML = store.cards.map(c=>`${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}${c.limit?` — Limit: ${escapeHtml(String(c.limit))}`:''}`).join('<br>');
+    }
 
-  renderCardsList();
-}
+    // Add card (name line + optional prompts)
+    $('#btnAddCard').onclick=()=>{
+      const name=$('#ccName').value.trim(); if(!name) return alert('Enter card name');
+      const last4 = prompt('Last 4 digits (optional)') || '';
+      const limitStr = prompt('Limit amount (optional)');
+      const limit = limitStr && !isNaN(+limitStr) ? +limitStr : '';
+      store.cards.push({id:Date.now(), name, last4:last4.trim(), limit}); save();
+      $('#ccName').value=''; render();
+    };
 
-// Add card (name only on line; optional details via prompts)
-$('#btnAddCard').onclick=()=>{
-  const name=$('#ccName').value.trim(); if(!name) return alert('Enter card name');
-  const last4 = prompt('Last 4 digits (optional)') || '';
-  const limitStr = prompt('Limit amount (optional)');
-  const limit = limitStr && !isNaN(+limitStr) ? +limitStr : '';
-  store.cards.push({id:Date.now(), name, last4:last4.trim(), limit}); save();
-  $('#ccName').value=''; render();
-};
+    // Edit card
+    $('#btnEditCards').onclick=()=>{
+      if(!store.cards.length) return alert('No cards to edit.');
+      const key = prompt('Enter card name or last 4 to edit:', $('#ccName').value.trim());
+      if(!key) return; const card = store.cards.find(c=> c.name.toLowerCase()===key.toLowerCase() || (c.last4||'')===key);
+      if(!card) return alert('Card not found. Use exact name or last 4.');
+      const newName = prompt('Card name', card.name); if(newName===null) return;
+      const newLast4 = prompt('Last 4 (optional)', card.last4||''); if(newLast4===null) return;
+      const newLimitStr = prompt('Limit (optional)', card.limit||''); if(newLimitStr===null) return;
+      card.name=newName.trim()||card.name; card.last4=(newLast4||'').trim(); card.limit=newLimitStr.trim()===''? '':(+newLimitStr||''); save(); render();
+    };
 
-// Edit card (choose by name or last4)
-$('#btnEditCard').onclick=()=>{
-  if(!store.cards.length) return alert('No cards to edit.');
-  const key = prompt('Enter card name or last 4 to edit:', $('#ccName').value.trim());
-  if(!key) return;
-  const card = store.cards.find(c=> c.name.toLowerCase()===key.toLowerCase() || (c.last4||'')===key);
-  if(!card) return alert('Card not found. Use exact name or last 4.');
-  const newName = prompt('Card name', card.name); if(newName===null) return;
-  const newLast4 = prompt('Last 4 (optional)', card.last4||''); if(newLast4===null) return;
-  const newLimitStr = prompt('Limit (optional)', card.limit||''); if(newLimitStr===null) return;
-  card.name = newName.trim()||card.name; card.last4 = (newLast4||'').trim(); card.limit = newLimitStr.trim()===''? '' : (+newLimitStr||'');
-  save(); render();
-};
+    // Month + actions
+    $('#btnPrev').onclick=()=>shiftMonth(-1);
+    $('#btnNext').onclick=()=>shiftMonth(1);
+    function shiftMonth(d){ let date=$('#month').value?new Date($('#month').value+'-01T00:00:00'):new Date(); date.setDate(1); date.setMonth(date.getMonth()+d); $('#month').value=ym(date); render(); }
 
-// Month controls
-$('#btnPrev').onclick=()=>shiftMonth(-1);
-$('#btnNext').onclick=()=>shiftMonth(1);
-function shiftMonth(d){ let date=$('#month').value?new Date($('#month').value+'-01T00:00:00'):new Date(); date.setDate(1); date.setMonth(date.getMonth()+d); $('#month').value=ym(date); render(); }
+    $('#btnExport').onclick=()=>{
+      const m=$('#month').value; ensureMonth(m);
+      const rows=[["Card","Amount","Due Date","Status"]];
+      store.cards.forEach(c=>{ const p=store.payments[m][c.id]||{}; rows.push([c.name,p.amount||'',p.dueDate||'',p.paid?'Paid':'Unpaid']); });
+      const csv=rows.map(r=> r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
+');
+      const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='payments.csv'; a.click();
+    };
 
-// Export/Reset
-$('#btnExport').onclick=()=>{
-  const m=$('#month').value; ensureMonth(m);
-  const rows=[["Card","Amount","Due Date","Status"]];
-  store.cards.forEach(c=>{ const p=store.payments[m][c.id]||{}; rows.push([c.name, p.amount||'', p.dueDate||'', p.paid?'Paid':'Unpaid']); });
-  const csv=rows.map(r=> r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='payments.csv'; a.click();
-};
-$('#btnReset').onclick=()=>{ if(confirm('Reset all data?')){ store={cards:[],payments:{}}; save(); render(); }};
+    $('#btnReset').onclick=()=>{ if(confirm('Reset all data?')){ store={cards:[],payments:{}}; save(); render(); } };
+    $('#btnToggleAmounts').onclick=()=>{ hideAmounts=!hideAmounts; localStorage.setItem(HIDE_KEY, hideAmounts?'1':'0'); render(); };
 
-// Mask + Lock buttons
-$('#btnToggleMask').onclick=toggleMask;
-$('#btnLock').onclick=()=> openLock(true);
+    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
 
-// Lock logic
-function openLock(byUser=false){
-  const hasPin = !!localStorage.getItem(PIN_KEY);
-  $('#lockOverlay').style.display='flex';
-  if(hasPin){
-    $('#lockTitle').textContent='Unlock';
-    $('#lockDesc').textContent='Enter your 4‑digit PIN to view amounts.';
-  }else{
-    $('#lockTitle').textContent='Set a 4‑digit PIN';
-    $('#lockDesc').textContent='Protect your tracker with a simple code.';
-  }
-  $('#pinInput').value='';
-  $('#pinInput').focus();
-  // If locking by user, also auto-mask
-  if(byUser){ isMasked=true; localStorage.setItem(MASK_KEY,'1'); updateMaskClass(); $('#btnToggleMask').textContent='Show amounts'; }
-}
-
-function closeLock(){ $('#lockOverlay').style.display='none'; }
-
-$('#btnLockOk').onclick=()=>{
-  const pin = $('#pinInput').value.trim();
-  if(!/^\d{4}$/.test(pin)) return alert('Please enter a 4-digit PIN.');
-  const saved = localStorage.getItem(PIN_KEY);
-  if(saved){
-    if(pin===saved){ closeLock(); } else { alert('Incorrect PIN.'); }
-  }else{
-    // First set
-    localStorage.setItem(PIN_KEY, pin); alert('PIN set.'); closeLock();
-  }
-};
-$('#btnLockCancel').onclick=()=> closeLock();
-
-// Init
-(function init(){
-  const d=new Date(); d.setDate(1); $('#month').value=ym(d);
-  // If a PIN exists, open lock on load
-  if(localStorage.getItem(PIN_KEY)){
-    openLock(false);
-  }
-  render();
-})();
-</script>
+    (function init(){ const d=new Date(); d.setDate(1); $('#month').value=ym(d); render(); })();
+  </script>
 </body>
 </html>
