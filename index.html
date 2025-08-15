@@ -15,11 +15,37 @@
     .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between}
     label{font-size:12px;color:var(--muted)}
     input,button{border-radius:10px;border:1px solid #223247;background:#0f1722;color:var(--text);padding:10px 12px;font-size:16px;min-width:0}
-    button{cursor:pointer;appearance:none;-webkit-appearance:none;border:1px solid #2a3b57}
-    button.primary{background:var(--accent);border-color:transparent;color:#fff}
-    button.secondary{background:#1b2433;color:#d7dde7;border-color:#2b3b55}
-    button.destructive{background:#2b1c1c;border-color:#4a2b2b;color:#ffb4b4}
-    button:active{opacity:.9}
+    button {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border-radius: 10px;
+  border: 1px solid #2a3b57;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 16px;
+  min-width: 0;
+  z-index: 1;
+  position: relative;
+  pointer-events: auto;
+  touch-action: manipulation;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+button.secondary {
+  background: #1b2433;
+  color: #d7dde7;
+  border-color: #2b3b55;
+}
+button.destructive {
+  background: #2b1c1c;
+  color: #ffb4b4;
+  border-color: #4a2b2b;
+}
+button:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
 
     .table-wrap{overflow-x:auto}
     table{width:100%;min-width:720px;border-collapse:separate;border-spacing:0 8px;margin-top:8px}
