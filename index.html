@@ -44,6 +44,8 @@
     .hint{font-size:12px;color:var(--muted)}
     .footer{margin-top:20px;display:flex;gap:8px;flex-wrap:wrap}
     .month-switch{display:flex;gap:8px;align-items:center}
+    details summary{cursor:pointer;list-style:none}
+    details{margin-bottom:8px}
     @media (max-width: 900px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
@@ -57,8 +59,8 @@
           <div class="row month-switch">
             <label for="month">Month</label>
             <input type="month" id="month" />
-            <button class="ghost" id="btnPrev">◀</button>
-            <button class="ghost" id="btnNext">▶</button>
+            <button class="ghost" id="btnPrev" title="Previous month">◀</button>
+            <button class="ghost" id="btnNext" title="Next month">▶</button>
           </div>
           <div class="row">
             <button class="primary" id="btnAddPayment">Add/Update Payment</button>
@@ -82,37 +84,45 @@
 
         <div class="totals">
           <div class="muted">Totals for <span id="totalsMonth"></span></div>
-          <div class="total" id="totalDue">0.00</div>
+          <div class="right" style="gap:16px;align-items:baseline">
+            <div><div class="muted" style="font-size:12px">Total</div><div class="total" id="totalDue">0.00</div></div>
+            <div><div class="muted" style="font-size:12px">Paid</div><div class="total" id="totalPaid">0.00</div></div>
+            <div><div class="muted" style="font-size:12px">Remaining</div><div class="total" id="totalRemain">0.00</div></div>
+          </div>
         </div>
       </div>
 
       <!-- RIGHT: Cards + Tools -->
       <div class="card">
-        <div class="section-title">Cards</div>
-        <div class="row">
-          <input id="ccName" placeholder="Card name (e.g., Chase Sapphire)" style="flex:1" />
-          <input id="ccLast4" placeholder="Last 4 (optional)" style="width:140px" maxlength="4" />
-          <input id="ccLimit" type="number" placeholder="Limit (optional)" style="width:160px" />
-          <button class="primary" id="btnAddCard">Add Card</button>
-        </div>
-        <div class="list" id="cardsList" style="margin-top:12px"></div>
+        <details id="secCards" open>
+          <summary class="section-title">Cards</summary>
+          <div class="row">
+            <input id="ccName" placeholder="Card name (e.g., Chase Sapphire)" style="flex:1" />
+            <input id="ccLast4" placeholder="Last 4 (optional)" style="width:140px" maxlength="4" />
+            <input id="ccLimit" type="number" placeholder="Limit (optional)" style="width:160px" />
+            <button class="primary" id="btnAddCard">Add Card</button>
+          </div>
+          <div class="list" id="cardsList" style="margin-top:12px"></div>
+        </details>
 
         <div class="hr"></div>
-        <div class="section-title">Data</div>
-        <div class="row">
-          <button id="btnExport">Export JSON</button>
-          <input type="file" id="fileImport" accept="application/json" style="display:none" />
-          <button id="btnImport">Import JSON</button>
-          <button class="danger" id="btnReset">Reset All</button>
-        </div>
-        <div class="footer hint">Data is stored locally in your browser using <b>localStorage</b>. Export regularly for backup.</div>
+        <details id="secData" open>
+          <summary class="section-title">Data</summary>
+          <div class="row">
+            <button id="btnExport">Export CSV</button>
+            <input type="file" id="fileImport" accept="application/json" style="display:none" />
+            <button id="btnImport">Import JSON</button>
+            <button class="danger" id="btnReset">Reset All</button>
+          </div>
+          <div class="footer hint">Data is stored locally in your browser using <b>localStorage</b>. Export CSV regularly for backup.</div>
+        </details>
       </div>
     </div>
   </div>
 
   <script>
     // ---------- Simple Store ----------
-    const STORE_KEY = 'ccapp_v1';
+    const STORE_KEY = 'ccapp_v2';
     const $ = sel => document.querySelector(sel);
     const $$ = sel => Array.from(document.querySelectorAll(sel));
 
@@ -184,7 +194,7 @@
       ensureMonthExists(month);
       const tbody = $('#paymentsTbody');
       tbody.innerHTML = '';
-      let total = 0;
+      let total = 0; let paid = 0;
 
       // Guarantee every card has an entry (may be empty) so users can fill quickly
       store.cards.forEach(card=>{ if(!store.payments[month][card.id]) store.payments[month][card.id] = {amount:'', dueDate:'', paid:false}; });
@@ -209,9 +219,12 @@
           </td>`;
         tbody.appendChild(tr);
         total += Number(p.amount||0);
+        if(p.paid) paid += Number(p.amount||0);
       });
 
       $('#totalDue').textContent = fmt(total);
+      $('#totalPaid').textContent = fmt(paid);
+      $('#totalRemain').textContent = fmt(total - paid);
 
       // Wire inputs
       $$('input[data-amount]').forEach(inp=> inp.addEventListener('change', e=>{
@@ -221,12 +234,16 @@
         entry.amount = Number(e.target.value||0);
         store.payments[month][id] = entry; saveStore(store); renderPayments();
       }));
-      $$('input[data-date]').forEach(inp=> inp.addEventListener('change', e=>{
-        const id = e.target.getAttribute('data-date');
-        ensureMonthExists(month);
-        const entry = store.payments[month][id] || {amount:'',dueDate:'',paid:false};
-        entry.dueDate = e.target.value; store.payments[month][id] = entry; saveStore(store); renderPayments();
-      }));
+      $$('input[data-date]').forEach(inp=> {
+        // Prevent Chrome from inserting today's date on first click; open picker only
+        inp.addEventListener('mousedown', e=>{ e.preventDefault(); inp.showPicker && inp.showPicker(); });
+        inp.addEventListener('change', e=>{
+          const id = e.target.getAttribute('data-date');
+          ensureMonthExists(month);
+          const entry = store.payments[month][id] || {amount:'',dueDate:'',paid:false};
+          entry.dueDate = e.target.value; store.payments[month][id] = entry; saveStore(store); renderPayments();
+        });
+      });
       $$('button[data-togglepaid]').forEach(btn=> btn.addEventListener('click', e=>{
         const id = e.currentTarget.getAttribute('data-togglepaid');
         const entry = store.payments[month][id] || {amount:'',dueDate:'',paid:false};
@@ -252,9 +269,10 @@
       const month = $('#month').value; ensureMonthExists(month);
       // Find a card without amount, else edit the first
       const targetCard = store.cards.find(c=>{ const p = store.payments[month][c.id]; return !p || !p.amount }) || store.cards[0];
-      const amt = prompt(`Amount due for ${targetCard.name} (${month})`, store.payments[month][targetCard.id]?.amount||'');
+      const current = store.payments[month][targetCard.id] || {};
+      const amt = prompt(`Amount due for ${targetCard.name} (${month})`, current.amount ?? '');
       if(amt===null) return;
-      const due = prompt('Due date (YYYY-MM-DD)', store.payments[month][targetCard.id]?.dueDate||'');
+      const due = prompt('Due date (YYYY-MM-DD)', current.dueDate ?? '');
       ensureMonthExists(month);
       store.payments[month][targetCard.id] = { amount: Number(amt||0), dueDate: (due||''), paid: false };
       saveStore(store); renderPayments();
@@ -271,20 +289,33 @@
     $('#btnNext').addEventListener('click', ()=> shiftMonth(1));
 
     function shiftMonth(delta){
-      const d = new Date($('#month').value+'-01T00:00:00');
-      d.setMonth(d.getMonth()+delta);
-      const m = ym(d); setMonthPicker(m); renderPayments();
+      let base;
+      if($('#month').value){ base = new Date($('#month').value+'-01T00:00:00'); }
+      if(!base || isNaN(base)) base = new Date();
+      base.setDate(1);
+      base.setMonth(base.getMonth()+delta);
+      const m = ym(base); setMonthPicker(m); renderPayments();
     }
 
     $('#month').addEventListener('change', ()=>{ setMonthPicker($('#month').value); renderPayments(); });
 
+    // CSV export
     $('#btnExport').addEventListener('click', ()=>{
-      const blob = new Blob([JSON.stringify(store,null,2)], {type:'application/json'});
+      const month = $('#month').value;
+      const rows = [['month','card','last4','amount','due_date','paid']];
+      ensureMonthExists(month);
+      store.cards.forEach(card=>{
+        const p = store.payments[month][card.id] || {amount:'', dueDate:'', paid:false};
+        rows.push([month, card.name, card.last4||'', String(p.amount||''), p.dueDate||'', p.paid? 'yes':'no']);
+      });
+      const csv = rows.map(r => r.map(v=> '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download='ccapp-data.json'; a.click();
+      const a = document.createElement('a'); a.href=url; a.download=`ccapp-${month}.csv`; a.click();
       URL.revokeObjectURL(url);
     });
 
+    // Keep JSON import (optional)
     $('#btnImport').addEventListener('click', ()=> $('#fileImport').click());
     $('#fileImport').addEventListener('change', e=>{
       const file = e.target.files[0]; if(!file) return;
