@@ -216,20 +216,19 @@
     $('#btnExport').onclick = () => {
       const m = $('#month').value; ensureMonth(m);
       const rows = [["Card","Amount","Due Date","Status"]];
-      store.cards.forEach(c => { const p = store.payments[m][c.id] || {}; rows.push([c.name, p.amount||'', p.dueDate||'', p.paid?'Paid':'Unpaid']); });
+      store.cards.forEach(c => {
+        const p = store.payments[m][c.id] || {};
+        rows.push([c.name, p.amount||'', p.dueDate||'', p.paid ? 'Paid' : 'Unpaid']);
+      });
       const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
 ');
       const blob = new Blob([csv], {type:'text/csv'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'payments.csv'; a.click();
+      const a = document.createElement('a');
+      a.href = url; a.download = 'payments.csv'; a.click();
       URL.revokeObjectURL(url);
-    }; rows.push([c.name, p.amount||'', p.dueDate||'', p.paid?'Paid':'Unpaid']); });
-      const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
-');
-      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download = 'payments.csv'; a.click();
     };
-
-    $('#btnReset').onclick = () => { if(confirm('Reset all data?')){ store = {cards:[],payments:{}}; save(); render(); } };
+    $('#btnReset'.onclick = () => { if(confirm('Reset all data?')){ store = {cards:[],payments:{}}; save(); render(); } };
     $('#btnToggleAmounts').onclick = () => { hideAmounts = !hideAmounts; localStorage.setItem(HIDE_KEY, hideAmounts?'1':'0'); render(); };
 
     function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
