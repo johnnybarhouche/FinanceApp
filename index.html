@@ -1,209 +1,206 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <title>Credit Card Dues Tracker</title>
-  <style>
-    :root { --bg:#0b0f14; --card:#131f2c; --text:#e6edf3; --muted:#9aa7b5; --accent:#4f46e5; }
-    *{box-sizing:border-box}
-    html,body{-webkit-text-size-adjust:100%}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1100px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px)+16px) 16px calc(env(safe-area-inset-bottom,0px)+24px)}
-    h1{font-size:clamp(22px,3vw,28px);margin:0 0 18px}
-    .grid{display:grid;gap:16px;grid-template-columns:2fr 1fr}
-    .card{background:var(--card);border-radius:16px;padding:16px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    label{font-size:12px;color:var(--muted)}
-    input,select,button,textarea{border-radius:12px;border:1px solid #223247;background:#0f1722;color:var(--text);padding:12px 14px;font-size:16px;min-height:44px}
-    button{border:1px solid #2a3b57;cursor:pointer;-webkit-appearance:none;appearance:none}
-    table{width:100%;border-collapse:separate;border-spacing:0 8px}
-    th,td{padding:10px 12px;text-align:left}
-    th{color:var(--muted);font-weight:600;font-size:12px}
-    tr{background:#0f1824}
-    tr td:first-child, tr th:first-child{border-top-left-radius:10px;border-bottom-left-radius:10px}
-    tr td:last-child, tr th:last-child{border-top-right-radius:10px;border-bottom-right-radius:10px}
-    .pill{font-size:12px;padding:4px 8px;border-radius:999px}
-    .pill.due{background:#1a2432;color:#f8fafc;border:1px solid #2b3b55}
-    .pill.paid{background:#0f2a1a;border:1px solid #1f5c3b;color:#c7f9d4}
-    .totals{display:flex;flex-direction:column;margin-top:8px;gap:4px}
-    .total{font-size:18px;font-weight:700}
-    .muted{color:var(--muted)}
-    .collapsible-header{cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;user-select:none}
-    .collapsible-content{display:none;margin-top:8px}
-    .btn{padding:12px 14px;border-radius:12px}
-    .btn.primary{background:var(--accent);border-color:transparent}
-    .month-controls button{width:44px;height:44px;border-radius:12px}
-    @media (max-width: 900px){.grid{grid-template-columns:1fr}}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Credit Card Dues Tracker</title>
+<style>
+:root { --bg:#fff; --card:#f9f9f9; --text:#000; --muted:#666; --accent:#007aff; --ok:#34c759; --danger:#ff3b30; --chip:#0f1722; --chipText:#e6edf3; }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:800px;margin:0 auto;padding:16px}
+
+h1{font-size:22px;margin:0 0 12px;text-align:center}
+.card{background:var(--card);border-radius:12px;padding:12px;margin-bottom:16px;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+label{font-size:14px;color:var(--muted)}
+input,button{border-radius:10px;border:1px solid #d0d5dd;padding:10px 12px;font-size:16px}
+input[type=month]{width:160px}
+button{background:var(--accent);color:#fff;border:none;cursor:pointer}
+button.secondary{background:#e5e7eb;color:#111}
+button:active{opacity:.85}
+
+/* Totals chips in one line */
+.totals{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin-top:10px}
+.totals .chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--chip);color:var(--chipText);border-radius:999px;padding:6px 10px;font-weight:700;font-size:14px}
+
+/* Table base */
+table{width:100%;border-collapse:separate;border-spacing:0 8px;margin-top:8px}
+th,td{text-align:left;padding:8px;font-size:14px}
+th{color:var(--muted);font-weight:600}
+tr{background:#fff;border:1px solid #ececec}
+tr td:first-child{border-top-left-radius:8px;border-bottom-left-radius:8px}
+tr td:last-child{border-top-right-radius:8px;border-bottom-right-radius:8px}
+.pill{font-size:12px;padding:4px 8px;border-radius:999px;color:#fff;white-space:nowrap}
+.paid{background:var(--ok)}
+.due{background:var(--danger)}
+
+/* Make inputs fit cells nicely */
+td input[type=number], td input[type=date]{width:100%;min-width:0}
+
+/* Compact action button */
+.table-btn{background:#eef2ff;color:#111;border:1px solid #c7d2fe;padding:6px 10px;border-radius:8px}
+
+/* Mobile-first responsive stack for rows */
+@media (max-width: 480px){
+  thead{display:none}
+  table, tbody, tr, td {display:block;width:100%}
+  tr{padding:8px;border-radius:10px}
+  td{padding:6px 6px}
+  td::before{content:attr(data-label);display:block;color:var(--muted);font-size:12px;margin-bottom:4px}
+  /* Put status and action side-by-side on mobile */
+  td.actions{display:flex;gap:8px;align-items:center}
+  .wrap{padding-left:12px;padding-right:12px}
+}
+
+/* Prevent any accidental horizontal scroll */
+img,table,div,section{max-width:100%}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>💳 Credit Card Dues Tracker</h1>
-    <div class="grid">
-      <div class="card">
-        <div class="row" style="justify-content:space-between;align-items:center">
-          <div class="row month-controls">
-            <label for="month">Month</label>
-            <input type="month" id="month" />
-            <button id="btnPrev" aria-label="Previous month">◀</button>
-            <button id="btnNext" aria-label="Next month">▶</button>
-          </div>
-          <div class="row">
-            <button class="btn primary" id="btnAddPayment">Add/Update Payment</button>
-            <button class="btn" id="btnMarkAllPaid">Mark All Paid</button>
-          </div>
-        </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Card</th>
-              <th>Amount Due</th>
-              <th>Due Date</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="paymentsTbody"></tbody>
-        </table>
-        <div class="totals">
-          <div class="total" id="totalDue">Total Due: 0</div>
-          <div class="total" id="totalPaid">Total Paid: 0</div>
-          <div class="total" id="totalRemaining">Remaining: 0</div>
-        </div>
-      </div>
+<div class="wrap">
+  <h1>💳 Credit Card Dues Tracker</h1>
 
-      <div class="card">
-        <div class="collapsible-header" onclick="toggleSection('cardsSection', this)">Cards <span>▼</span></div>
-        <div id="cardsSection" class="collapsible-content">
-          <div class="row">
-            <input id="ccName" placeholder="Card name" />
-            <input id="ccLast4" placeholder="Last 4" maxlength="4" />
-            <input id="ccLimit" type="number" placeholder="Limit" inputmode="decimal" />
-            <button class="btn primary" id="btnAddCard">Add Card</button>
-          </div>
-          <div id="cardsList" style="margin-top:12px"></div>
-        </div>
-        <div class="collapsible-header" onclick="toggleSection('dataSection', this)">Data <span>▼</span></div>
-        <div id="dataSection" class="collapsible-content">
-          <button class="btn" id="btnExport">Export CSV</button>
-          <button class="btn" id="btnReset">Reset All</button>
-        </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <label for="month">Month</label>
+        <input type="month" id="month" />
+      </div>
+      <div class="row">
+        <button class="secondary" id="btnPrev" aria-label="Previous month">◀</button>
+        <button class="secondary" id="btnNext" aria-label="Next month">▶</button>
+        <button id="btnAddPayment">Add Payment</button>
+        <button class="secondary" id="btnMarkAllPaid">Mark All Paid</button>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Card</th><th>Amount</th><th>Due Date</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody id="paymentsTbody"></tbody>
+    </table>
+
+    <div class="totals">
+      <div class="chips">
+        <span class="chip" id="chipTotal">Total: 0</span>
+        <span class="chip" id="chipPaid">Paid: 0</span>
+        <span class="chip" id="chipRemain">Remaining: 0</span>
       </div>
     </div>
   </div>
-  <script>
-    const STORE_KEY = 'ccapp_v3';
-    const $ = s=>document.querySelector(s);
-    const $$ = s=>Array.from(document.querySelectorAll(s));
-    const fmt0 = n => new Intl.NumberFormat(undefined,{maximumFractionDigits:0}).format(Math.round(+n||0));
-    const ym = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; // local, avoids UTC jumps
 
-    let store;
-    try{ store = JSON.parse(localStorage.getItem(STORE_KEY)) || {cards:[],payments:{}} }catch(e){ store = {cards:[],payments:{}} }
-    function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
-    function ensureMonth(m){ if(!store.payments[m]) store.payments[m]={}; }
+  <div class="card">
+    <div class="row" style="margin-bottom:8px"><strong>Cards</strong></div>
+    <div class="row">
+      <input id="ccName" placeholder="Card name" />
+      <input id="ccLast4" placeholder="Last 4" maxlength="4" />
+      <input id="ccLimit" type="number" placeholder="Limit" />
+      <button id="btnAddCard">Add</button>
+    </div>
+    <div id="cardsList" style="margin-top:8px"></div>
+  </div>
 
-    function render(){
-      const m=$('#month').value; ensureMonth(m);
-      const tbody=$('#paymentsTbody'); tbody.innerHTML='';
-      let total=0, paid=0;
-      store.cards.forEach(c=>{
-        if(!store.payments[m][c.id]) store.payments[m][c.id]={amount:'',dueDate:'',paid:false};
-        const p=store.payments[m][c.id];
-        total += +p.amount||0; if(p.paid) paid += +p.amount||0;
-        const tr=document.createElement('tr');
-        tr.innerHTML=`
-          <td>${escapeHtml(c.name)}${c.last4?` •••• ${escapeHtml(c.last4)}`:''}</td>
-          <td><input type='number' inputmode='decimal' step='0.01' data-amount='${c.id}' value='${p.amount}' /></td>
-          <td><input type='date' data-date='${c.id}' value='${p.dueDate||''}' /></td>
-          <td>${p.paid?'<span class="pill paid">Paid</span>':'<span class="pill due">Unpaid</span>'}</td>
-          <td><button class='btn' data-togglepaid='${c.id}'>${p.paid?'Unmark':'Mark Paid'}</button></td>`;
-        tbody.appendChild(tr);
-      });
-      $('#totalDue').textContent=`Total Due: ${fmt0(total)}`;
-      $('#totalPaid').textContent=`Total Paid: ${fmt0(paid)}`;
-      $('#totalRemaining').textContent=`Remaining: ${fmt0(total-paid)}`;
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <div class="row"><strong>Data</strong></div>
+      <div class="row" style="gap:8px">
+        <button id="btnExport">Export CSV</button>
+        <button id="btnReset" style="background:var(--danger)">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-      // Wire inputs
-      $$('input[data-amount]').forEach(inp=> inp.onchange=e=>{
-        const m=$('#month').value; const id=e.target.dataset.amount;
-        ensureMonth(m); const entry=store.payments[m][id]||{amount:'',dueDate:'',paid:false};
-        entry.amount = +e.target.value||0; store.payments[m][id]=entry; save(); render();
-      });
-      $$('input[data-date]').forEach(inp=> inp.onchange=e=>{
-        const m=$('#month').value; const id=e.target.dataset.date;
-        ensureMonth(m); const entry=store.payments[m][id]||{amount:'',dueDate:'',paid:false};
-        entry.dueDate = e.target.value; store.payments[m][id]=entry; save(); render();
-      });
-      $$('button[data-togglepaid]').forEach(btn=> btn.onclick=e=>{
-        const m=$('#month').value; const id=e.target.dataset.togglepaid;
-        const entry=store.payments[m][id]; entry.paid=!entry.paid; save(); render();
-      });
-    }
+<script>
+const STORE_KEY='ccapp_v4';
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+let store; try{store=JSON.parse(localStorage.getItem(STORE_KEY)||'{"cards":[],"payments":{}}')}catch(e){store={cards:[],payments:{}}}
+const ym = d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; // local, no UTC drift
+const fmt0 = n=> String(Math.round(+n||0));
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(store));}
+function ensureMonth(m){if(!store.payments[m]) store.payments[m] = {};}
 
-    $('#btnAddCard').onclick=()=>{
-      const name=$('#ccName').value.trim(); if(!name) return alert('Enter card name');
-      const last4=$('#ccLast4').value.trim(); const limit=$('#ccLimit').value.trim();
-      store.cards.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7), name, last4, limit});
-      save(); $('#ccName').value=''; $('#ccLast4').value=''; $('#ccLimit').value=''; render();
-    };
+function render(){
+  const m=$('#month').value; ensureMonth(m);
+  const tb=$('#paymentsTbody'); tb.innerHTML='';
+  let total=0, paid=0;
+  store.cards.forEach(c=>{
+    if(!store.payments[m][c.id]) store.payments[m][c.id]={amount:'',dueDate:'',paid:false};
+    const p=store.payments[m][c.id];
+    total += +p.amount||0; if(p.paid) paid += +p.amount||0;
+    const tr=document.createElement('tr');
+    tr.innerHTML=
+      `<td data-label="Card">${escapeHtml(c.name)}${c.last4?` •••• ${escapeHtml(c.last4)}`:''}</td>
+       <td data-label="Amount"><input type="number" inputmode="decimal" step="0.01" data-amount="${c.id}" value="${p.amount}"></td>
+       <td data-label="Due Date"><input type="date" data-date="${c.id}" value="${p.dueDate||''}"></td>
+       <td data-label="Status">${p.paid?'<span class="pill paid">Paid</span>':'<span class="pill due">Unpaid</span>'}</td>
+       <td data-label="Action" class="actions"><button class="table-btn" data-togglepaid="${c.id}">${p.paid?'Unmark':'Mark Paid'}</button></td>`;
+    tb.appendChild(tr);
+  });
+  $('#chipTotal').textContent = `Total: ${fmt0(total)}`;
+  $('#chipPaid').textContent = `Paid: ${fmt0(paid)}`;
+  $('#chipRemain').textContent = `Remaining: ${fmt0(total-paid)}`;
 
-    function shiftMonth(delta){
-      const val=$('#month').value; let y,m,base;
-      if(val && /^\d{4}-\d{2}$/.test(val)){ [y,m]=val.split('-').map(Number); base=new Date(y,m-1,1); }
-      else { base=new Date(); base.setDate(1); }
-      base.setMonth(base.getMonth()+delta);
-      $('#month').value = ym(base); render();
-    }
+  $$('input[data-amount]').forEach(inp=> inp.onchange=e=>{
+    const m=$('#month').value;const id=e.target.dataset.amount;ensureMonth(m);
+    store.payments[m][id].amount=+e.target.value||0; save(); render();
+  });
+  $$('input[data-date]').forEach(inp=> inp.onchange=e=>{
+    const m=$('#month').value;const id=e.target.dataset.date;ensureMonth(m);
+    store.payments[m][id].dueDate=e.target.value; save(); render();
+  });
+  $$('button[data-togglepaid]').forEach(btn=> btn.onclick=e=>{
+    const m=$('#month').value; const id=e.target.dataset.togglepaid;
+    store.payments[m][id].paid=!store.payments[m][id].paid; save(); render();
+  });
+}
 
-    $('#btnPrev').addEventListener('click', ()=>shiftMonth(-1));
-    $('#btnNext').addEventListener('click', ()=>shiftMonth(1));
+function shiftMonth(delta){
+  const val=$('#month').value; let y,m,base;
+  if(val && /^\d{4}-\d{2}$/.test(val)){[y,m]=val.split('-').map(Number); base=new Date(y,m-1,1);} else {base=new Date(); base.setDate(1);} 
+  base.setMonth(base.getMonth()+delta);
+  $('#month').value = ym(base); render();
+}
 
-    $('#btnAddPayment').onclick=()=>{
-      if(store.cards.length===0) return alert('Add a card first.');
-      const m=$('#month').value; ensureMonth(m);
-      const target=store.cards[0];
-      const current=store.payments[m][target.id]||{};
-      const amt=prompt(`Amount due for ${target.name} (${m})`, current.amount??''); if(amt===null) return;
-      const due=prompt('Due date (YYYY-MM-DD)', current.dueDate??'');
-      store.payments[m][target.id]={amount:+amt||0,dueDate:due||'',paid:false}; save(); render();
-    };
+$('#btnPrev').onclick=()=>shiftMonth(-1);
+$('#btnNext').onclick=()=>shiftMonth(1);
+$('#btnAddCard').onclick=()=>{
+  const name=$('#ccName').value.trim(); if(!name) return alert('Enter card name');
+  const last4=$('#ccLast4').value.trim(); const limit=$('#ccLimit').value.trim();
+  store.cards.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,7),name,last4,limit}); save();
+  $('#ccName').value=''; $('#ccLast4').value=''; $('#ccLimit').value=''; render();
+};
+$('#btnAddPayment').onclick=()=>{
+  if(store.cards.length===0) return alert('Add a card first.');
+  const m=$('#month').value; ensureMonth(m);
+  const target=store.cards[0]; const cur=store.payments[m][target.id]||{};
+  const amt=prompt(`Amount due for ${target.name} (${m})`, cur.amount??''); if(amt===null) return;
+  const due=prompt('Due date (YYYY-MM-DD)', cur.dueDate??'');
+  store.payments[m][target.id] = {amount:+amt||0, dueDate:due||'', paid:false}; save(); render();
+};
+$('#btnMarkAllPaid').onclick=()=>{
+  const m=$('#month').value; ensureMonth(m);
+  if(!confirm('Mark all visible payments as PAID?')) return;
+  Object.keys(store.payments[m]).forEach(id=> store.payments[m][id].paid=true); save(); render();
+};
+$('#btnExport').onclick=()=>{
+  const m=$('#month').value; ensureMonth(m);
+  const rows=[["month","card","last4","amount","due_date","paid"]];
+  store.cards.forEach(c=>{const p=store.payments[m][c.id]||{amount:'',dueDate:'',paid:false};
+    rows.push([m,c.name,c.last4||'',String(p.amount||''),p.dueDate||'',p.paid?'yes':'no']);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`ccapp-${m}.csv`; a.click();
+};
+$('#btnReset').onclick=()=>{ if(confirm('Reset all?')){ store={cards:[],payments:{}}; save(); render(); } };
 
-    $('#btnMarkAllPaid').onclick=()=>{
-      const m=$('#month').value; ensureMonth(m);
-      if(!confirm('Mark all visible payments as PAID?')) return;
-      Object.keys(store.payments[m]).forEach(id=> store.payments[m][id].paid=true); save(); render();
-    };
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
 
-    $('#btnExport').onclick=()=>{
-      const m=$('#month').value; ensureMonth(m);
-      const rows=[["month","card","last4","amount","due_date","paid"]];
-      store.cards.forEach(c=>{
-        const p=store.payments[m][c.id]||{amount:'',dueDate:'',paid:false};
-        rows.push([m,c.name,c.last4||'',String(p.amount||''),p.dueDate||'',p.paid?'yes':'no']);
-      });
-      const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-      const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download=`ccapp-${m}.csv`; a.click();
-    };
-
-    $('#btnReset').onclick=()=>{ if(confirm('Reset ALL data?')){ store={cards:[],payments:{}}; save(); render(); }};
-
-    function toggleSection(id, header){
-      const el=document.getElementById(id); const open=el.style.display==='block';
-      el.style.display=open?'none':'block'; header.querySelector('span').textContent=open?'▼':'▲';
-    }
-    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
-
-    // Init
-    (function init(){
-      const d=new Date(); d.setDate(1); $('#month').value=ym(d); render();
-      // Open sections by default on first load
-      toggleSection('cardsSection', document.querySelector('.collapsible-header'));
-      toggleSection('dataSection', document.querySelectorAll('.collapsible-header')[1]);
-    })();
-  </script>
+(function init(){ const d=new Date(); d.setDate(1); $('#month').value=ym(d); render(); })();
+</script>
 </body>
 </html>
