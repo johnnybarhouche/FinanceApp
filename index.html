@@ -5,245 +5,789 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Credit Card Dues Tracker</title>
   <style>
-    :root { --bg:#0b0f14; --panel:#101823; --card:#131f2c; --text:#e6edf3; --muted:#9aa7b5; --accent:#4f46e5; --ok:#22c55e; --danger:#ef4444; }
-    *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
-    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
-    .wrap{max-width:1100px;margin:24px auto;padding:0 12px}
-    h1{font-size:22px;margin:0 0 12px;text-align:center}
-
-    .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);margin-bottom:14px}
-    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-    label{font-size:12px;color:var(--muted)}
-    input{border-radius:10px;border:1px solid #223247;background:#0f1722;color:var(--text);padding:10px 12px;font-size:16px;min-width:0}
-    button {
-      cursor: pointer;
-      appearance: none;
-      -webkit-appearance: none;
-      border-radius: 10px;
-      border: 1px solid #2a3b57;
-      background: var(--accent);
-      color: #fff;
-      padding: 10px 14px;
-      font-size: 16px;
-      min-width: 44px;
-      z-index: 1;
-      position: relative;
-      pointer-events: auto;
-      touch-action: manipulation;
-      transition: background 0.2s ease, transform 0.1s ease;
-      line-height: 1.2;
+    :root {
+      --bg: #1a1d23;
+      --panel: #252930;
+      --card: #2a2f36;
+      --text: #e1e5e9;
+      --muted: #8b949e;
+      --border: #373c43;
+      --accent: #238636;
+      --accent-hover: #2ea043;
+      --danger: #da3633;
+      --input-bg: #21262d;
+      --toggle-bg: #373e47;
     }
-    button.secondary { background:#1b2433; color:#d7dde7; border-color:#2b3b55 }
-    button.destructive { background:#2b1c1c; color:#ffb4b4; border-color:#4a2b2b }
-    button:active { opacity:.9; transform:scale(.98) }
 
-    .table-wrap{overflow-x:auto}
-    table{width:100%;min-width:720px;border-collapse:separate;border-spacing:0 8px;margin-top:8px}
-    th,td{text-align:left;padding:8px 10px;font-size:14px}
-    th{color:var(--muted);font-weight:600}
-    tr{background:#0f1824}
-    tr td:first-child, tr th:first-child{border-top-left-radius:10px;border-bottom-left-radius:10px}
-    tr td:last-child, tr th:last-child{border-top-right-radius:10px;border-bottom-right-radius:10px}
-    .pill{font-size:12px;padding:4px 8px;border-radius:999px;white-space:nowrap}
-    .pill.paid{background:#0f2a1a;border:1px solid #1f5c3b;color:#c7f9d4}
-    .pill.due{background:#291b1b;border:1px solid #563131;color:#ffd2d2}
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-    .totals{display:flex;gap:8px;justify-content:flex-end;align-items:center;margin-top:10px;flex-wrap:wrap}
-    .chip{background:#0f1722;border:1px solid #20314d;color:#e6edf3;border-radius:999px;padding:6px 10px;font-weight:700;font-size:14px}
-    .hidden-amount{filter:blur(7px)}
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+    }
 
-    @media (max-width:480px){ .wrap{padding:0 8px} input[type="month"]{width:170px} button{padding:10px;min-width:36px;font-size:14px} }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .month-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .month-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 6px 12px;
+      font-size: 14px;
+      min-width: 140px;
+    }
+
+    .btn {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: var(--card);
+    }
+
+    .btn-nav {
+      padding: 6px 8px;
+      min-width: 32px;
+      justify-content: center;
+    }
+
+    .hide-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .main-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .totals {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+
+    .total-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .total-value {
+      font-weight: 600;
+    }
+
+    .currency-selector {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      padding: 2px 6px;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 24px;
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .amount-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 120px;
+      -moz-appearance: textfield;
+    }
+
+    .amount-input::-webkit-outer-spin-button,
+    .amount-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .date-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 140px;
+    }
+
+    .currency-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 14px;
+      width: 80px;
+      margin-right: 8px;
+    }
+
+    /* Toggle Switch */
+    .status-toggle {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 16px;
+      border: none;
+      transition: all 0.2s ease;
+      min-width: 70px;
+    }
+
+    .status-toggle.paid {
+      background: #0f2a1a;
+      color: #22c55e;
+      border: 1px solid #1f5c3b;
+    }
+
+    .status-toggle.unpaid {
+      background: #291b1b;
+      color: #ef4444;
+      border: 1px solid #563131;
+    }
+
+    .status-toggle:hover {
+      opacity: 0.8;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      border: 1px solid var(--danger);
+      color: white;
+    }
+
+    .add-card-section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .add-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .add-card-header:hover {
+      background: var(--card);
+    }
+
+    .add-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .expand-icon {
+      transition: transform 0.2s ease;
+      color: var(--muted);
+    }
+
+    .expand-icon.expanded {
+      transform: rotate(180deg);
+    }
+
+    .add-card-content {
+      padding: 0 24px 24px;
+      display: none;
+    }
+
+    .add-card-content.expanded {
+      display: block;
+    }
+
+    .add-icon {
+      background: var(--accent);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+
+    .add-form {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .card-input {
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 14px;
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .hidden-amount {
+      filter: blur(4px);
+      transition: filter 0.2s ease;
+    }
+
+    .cards-list {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 16px;
+      }
+      
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .totals {
+        gap: 16px;
+      }
+      
+      .add-form {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>💳 Credit Card Dues Tracker</h1>
-
-    <!-- Month + Table + Totals -->
-    <div class="card">
-      <div class="row">
-        <div class="row" style="gap:8px">
-          <label for="month">Month</label>
-          <input type="month" id="month" />
-          <button id="btnPrev" class="secondary">◀</button>
-          <button id="btnNext" class="secondary">▶</button>
+  <div class="container">
+    <div class="header">
+      <div class="month-controls">
+        <span style="font-weight: 600; margin-right: 12px;" id="monthDisplay">Aug 2025</span>
+        <input type="month" id="month" class="month-input" style="display: none;" />
+        <button id="btnPrev" class="btn btn-nav">‹</button>
+        <button id="btnNext" class="btn btn-nav">›</button>
+      </div>
+      <div class="hide-toggle">
+        <span>Hide amounts</span>
+        <div class="toggle">
+          <input type="checkbox" id="hideToggle">
+          <span class="toggle-slider"></span>
         </div>
-        <div class="row" style="gap:8px">
-          <button id="btnToggleAmounts" class="secondary">Hide amounts</button>
+      </div>
+    </div>
+
+    <div class="main-panel">
+      <div class="panel-header">
+        <h1 class="panel-title">Credit Cards</h1>
+        <div class="totals">
+          <div class="total-item">
+            <span>Total:</span>
+            <span class="total-value" id="chipTotal">0 AED</span>
+          </div>
+          <div class="total-item">
+            <span>Paid:</span>
+            <span class="total-value" id="chipPaid">0 AED</span>
+          </div>
+          <div class="total-item">
+            <span>Remaining:</span>
+            <span class="total-value" id="chipRemain">0 AED</span>
+            <select class="currency-selector" id="totalCurrency">
+              <option value="AED">AED</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="SAR">SAR</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="table-wrap">
-        <table>
+      <div class="table-container">
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">💳</div>
+          <div>No credit cards</div>
+          <div style="font-size: 12px; margin-top: 4px;">Get started by adding your first credit card.</div>
+        </div>
+        <table id="cardsTable" style="display: none;">
           <thead>
-            <tr><th>Card</th><th>Amount</th><th>Due Date</th><th>Status</th><th></th></tr>
+            <tr>
+              <th>Card</th>
+              <th>Amount</th>
+              <th>Due Date</th>
+              <th>Status</th>
+            </tr>
           </thead>
           <tbody id="paymentsTbody"></tbody>
         </table>
       </div>
 
-      <div class="totals">
-        <span class="chip" id="chipTotal">Total: 0</span>
-        <span class="chip" id="chipPaid">Paid: 0</span>
-        <span class="chip" id="chipRemain">Remaining: 0</span>
+      <div class="action-buttons">
+        <button id="btnExport" class="btn">Export CSV</button>
+        <button id="btnMarkAll" class="btn btn-primary">Mark All Paid</button>
+        <button id="btnReset" class="btn btn-danger">Reset Month</button>
       </div>
     </div>
 
-    <!-- Add / Edit Cards -->
-    <div class="card">
-      <div class="row" style="gap:8px">
-        <input id="ccName" placeholder="Card name" style="flex:1" />
-        <div class="row" style="gap:8px">
-          <button id="btnAddCard" class="primary">Add</button>
-          <button id="btnEditCards" class="secondary">Edit</button>
+    <div class="add-card-section">
+      <div class="add-card-header" id="addCardToggle">
+        <div class="add-card-title">
+          <div class="add-icon">+</div>
+          <div>
+            <div style="font-weight: 600;">Add New Credit Card</div>
+            <div style="font-size: 12px; color: var(--muted);">Add a new card to track its monthly payments</div>
+          </div>
         </div>
+        <div class="expand-icon" id="expandIcon">⌄</div>
       </div>
-      <div id="cardsList" style="margin-top:8px;color:#9aa7b5;font-size:13px"></div>
-    </div>
-
-    <!-- Data tools -->
-    <div class="card">
-      <div class="row" style="gap:8px;justify-content:flex-end">
-        <button id="btnExport" class="secondary">Export CSV</button>
-        <button id="btnReset" class="destructive">Reset</button>
+      <div class="add-card-content" id="addCardContent">
+        <div class="add-form">
+          <input id="ccName" placeholder="Card name" class="card-input" />
+          <button id="btnAddCard" class="btn btn-primary">Add Card</button>
+          <button id="btnEditCards" class="btn">Manage Cards</button>
+        </div>
+        <div id="cardsList" class="cards-list"></div>
       </div>
     </div>
   </div>
 
   <script>
-    // ---------- Store (with simple migration) ----------
-    const STORE_KEY = 'ccapp_v7';
-    const LEGACY_KEYS = ['ccapp_v5look','ccapp_v6','ccapp_v5','ccapp_v4','ccapp_v3','ccapp_v2','ccapp_v1'];
+    // ---------- Store ----------
+    const STORE_KEY = 'ccapp_v8';
     const HIDE_KEY = 'ccapp_hide_v1';
-    const $ = s => document.querySelector(s); const $$ = s => Array.from(document.querySelectorAll(s));
+    const CURRENCY_KEY = 'ccapp_currency_v1';
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
 
-    function loadStore(){
-      try{
-        const cur = JSON.parse(localStorage.getItem(STORE_KEY)||'null');
-        if(cur && cur.cards && cur.payments) return cur;
-      }catch(e){}
-      for(const k of LEGACY_KEYS){
-        try{ const s = JSON.parse(localStorage.getItem(k)||'null'); if(s && s.cards && s.payments){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); return s; } }catch(e){}
+    function loadStore() {
+      try {
+        const data = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+        return data && data.cards && data.payments ? data : { cards: [], payments: {} };
+      } catch (e) {
+        return { cards: [], payments: {} };
       }
-      return {cards:[],payments:{}};
     }
+
     let store = loadStore();
+    let hideAmounts = localStorage.getItem(HIDE_KEY) === '1';
+    let totalCurrency = localStorage.getItem(CURRENCY_KEY) || 'AED';
 
     // ---------- Helpers ----------
-    const ym = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`; // local time
-    const fmt = n => String(Math.round(+n||0)); // whole numbers for totals
-    function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
-    function ensureMonth(m){ if(!store.payments[m]) store.payments[m] = {}; }
-
-    let hideAmounts = localStorage.getItem(HIDE_KEY)==='1';
+    const ym = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    const formatMonthDisplay = dateStr => {
+      if (!dateStr) return '';
+      const [year, month] = dateStr.split('-');
+      const date = new Date(year, month - 1);
+      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    };
+    const formatNumber = n => {
+      const num = +n || 0;
+      return num.toLocaleString('en-US', { 
+        minimumFractionDigits: 0, 
+        maximumFractionDigits: 0 
+      });
+    };
+    function save() { localStorage.setItem(STORE_KEY, JSON.stringify(store)); }
+    function ensureMonth(m) { if (!store.payments[m]) store.payments[m] = {}; }
 
     // ---------- Render ----------
-    function render(){
-      const m = $('#month').value; ensureMonth(m);
-      const tb = $('#paymentsTbody'); tb.innerHTML = '';
-      let total=0, paid=0;
+    function render() {
+      const m = $('#month').value;
+      ensureMonth(m);
+      const tb = $('#paymentsTbody');
+      const table = $('#cardsTable');
+      const empty = $('#emptyState');
+      
+      tb.innerHTML = '';
+      let total = 0, paid = 0;
 
-      store.cards.forEach(c=>{
-        if(!store.payments[m][c.id]) store.payments[m][c.id] = {amount:'', dueDate:'', paid:false};
-        const p = store.payments[m][c.id];
-        total += +p.amount||0; if(p.paid) paid += +p.amount||0;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}</td>
-          <td><input type='number' class='${hideAmounts?"hidden-amount":""}' inputmode='decimal' step='0.01' data-amount='${c.id}' value='${p.amount}' /></td>
-          <td><input type='date' data-date='${c.id}' value='${p.dueDate||''}' /></td>
-          <td>${p.paid?'<span class="pill paid">Paid</span>':'<span class="pill due">Unpaid</span>'}</td>
-          <td><button class='secondary' data-togglepaid='${c.id}'>${p.paid?'Unmark':'Mark Paid'}</button></td>`;
-        tb.appendChild(tr);
+      if (store.cards.length === 0) {
+        table.style.display = 'none';
+        empty.style.display = 'block';
+      } else {
+        table.style.display = 'table';
+        empty.style.display = 'none';
+
+        store.cards.forEach(c => {
+          if (!store.payments[m][c.id]) {
+            store.payments[m][c.id] = { amount: '', dueDate: '', paid: false, currency: 'AED' };
+          }
+          const p = store.payments[m][c.id];
+          const amount = +p.amount || 0;
+          total += amount;
+          if (p.paid) paid += amount;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${escapeHtml(c.name)}${c.last4 ? ` (•••• ${escapeHtml(c.last4)})` : ''}</td>
+            <td>
+              <select class="currency-input" data-currency="${c.id}">
+                <option value="AED" ${p.currency === 'AED' ? 'selected' : ''}>AED</option>
+                <option value="USD" ${p.currency === 'USD' ? 'selected' : ''}>USD</option>
+                <option value="EUR" ${p.currency === 'EUR' ? 'selected' : ''}>EUR</option>
+                <option value="GBP" ${p.currency === 'GBP' ? 'selected' : ''}>GBP</option>
+                <option value="SAR" ${p.currency === 'SAR' ? 'selected' : ''}>SAR</option>
+              </select>
+              <input type="number" class="amount-input ${hideAmounts ? 'hidden-amount' : ''}" 
+                     inputmode="decimal" step="0.01" data-amount="${c.id}" value="${p.amount}" placeholder="0.00" />
+            </td>
+            <td><input type="date" class="date-input" data-date="${c.id}" value="${p.dueDate || ''}" /></td>
+            <td>
+              <button class="status-toggle ${p.paid ? 'paid' : 'unpaid'}" data-togglepaid="${c.id}">
+                ${p.paid ? 'Paid' : 'Unpaid'}
+              </button>
+            </td>
+          `;
+          tb.appendChild(tr);
+        });
+      }
+
+      // Update totals
+      $('#chipTotal').textContent = `${formatNumber(total)} ${totalCurrency}`;
+      $('#chipTotal').className = `total-value ${hideAmounts ? 'hidden-amount' : ''}`;
+      
+      $('#chipPaid').textContent = `${formatNumber(paid)} ${totalCurrency}`;
+      $('#chipPaid').className = `total-value ${hideAmounts ? 'hidden-amount' : ''}`;
+      
+      $('#chipRemain').textContent = `${formatNumber(total - paid)} ${totalCurrency}`;
+      $('#chipRemain').className = `total-value ${hideAmounts ? 'hidden-amount' : ''}`;
+
+      // Wire events
+      $$('input[data-amount]').forEach(inp => {
+        inp.onchange = e => {
+          const id = e.target.dataset.amount;
+          const m = $('#month').value;
+          ensureMonth(m);
+          store.payments[m][id].amount = +e.target.value || 0;
+          save();
+          render();
+        };
       });
 
-      $('#chipTotal').textContent = `Total: ${fmt(total)}`;
-      $('#chipPaid').textContent = `Paid: ${fmt(paid)}`;
-      $('#chipRemain').textContent = `Remaining: ${fmt(total-paid)}`;
-      ['chipTotal','chipPaid','chipRemain'].forEach(id=>{ const el=$('#'+id); el.classList.toggle('hidden-amount', hideAmounts); });
+      $$('input[data-date]').forEach(inp => {
+        inp.onchange = e => {
+          const id = e.target.dataset.date;
+          const m = $('#month').value;
+          ensureMonth(m);
+          store.payments[m][id].dueDate = e.target.value;
+          save();
+          render();
+        };
+      });
 
-      // Wire events for this render
-      $$('input[data-amount]').forEach(inp=> inp.onchange = e => {
-        const id = e.target.dataset.amount; const m = $('#month').value; ensureMonth(m);
-        store.payments[m][id].amount = +e.target.value||0; save(); render();
+      $('button[data-togglepaid]').forEach(btn => {
+        btn.onclick = e => {
+          const id = e.target.dataset.togglepaid;
+          const m = $('#month').value;
+          ensureMonth(m);
+          store.payments[m][id].paid = !store.payments[m][id].paid;
+          save();
+          render();
+        };
       });
-      $$('input[data-date]').forEach(inp=> inp.onchange = e => {
-        const id = e.target.dataset.date; const m = $('#month').value; ensureMonth(m);
-        store.payments[m][id].dueDate = e.target.value; save(); render();
-      });
-      $$('button[data-togglepaid]').forEach(btn=> btn.onclick = e => {
-        const id = e.target.dataset.togglepaid; const m = $('#month').value; ensureMonth(m);
-        store.payments[m][id].paid = !store.payments[m][id].paid; save(); render();
+
+      $$('select[data-currency]').forEach(sel => {
+        sel.onchange = e => {
+          const id = e.target.dataset.currency;
+          const m = $('#month').value;
+          ensureMonth(m);
+          store.payments[m][id].currency = e.target.value;
+          save();
+          render();
+        };
       });
 
       renderCardsList();
     }
 
-    function renderCardsList(){
+    function renderCardsList() {
       const list = $('#cardsList');
-      if(!store.cards.length){ list.textContent = 'No cards yet.'; return; }
-      list.innerHTML = store.cards.map(c=> `${escapeHtml(c.name)}${c.last4?` (•••• ${escapeHtml(c.last4)})`:''}${c.limit?` — Limit: ${escapeHtml(String(c.limit))}`:''}`).join('<br>');
+      if (!store.cards.length) {
+        list.textContent = 'No cards added yet.';
+        return;
+      }
+      list.innerHTML = store.cards.map(c => 
+        `${escapeHtml(c.name)}${c.last4 ? ` (•••• ${escapeHtml(c.last4)})` : ''}${c.limit ? ` — Limit: ${formatNumber(c.limit)}` : ''}`
+      ).join('<br>');
     }
 
-    // ---------- Card actions ----------
+    // ---------- Event Handlers ----------
     $('#btnAddCard').onclick = () => {
-      const name = $('#ccName').value.trim(); if(!name) return alert('Enter card name');
+      const name = $('#ccName').value.trim();
+      if (!name) return alert('Enter card name');
       const last4 = prompt('Last 4 digits (optional)') || '';
-      const limitStr = prompt('Limit amount (optional)');
+      const limitStr = prompt('Credit limit (optional)');
       const limit = limitStr && !isNaN(+limitStr) ? +limitStr : '';
-      store.cards.push({id: Date.now(), name, last4: last4.trim(), limit}); save();
-      $('#ccName').value=''; render();
+      store.cards.push({ id: Date.now(), name, last4: last4.trim(), limit });
+      save();
+      $('#ccName').value = '';
+      render();
     };
 
     $('#btnEditCards').onclick = () => {
-      if(!store.cards.length) return alert('No cards to edit.');
-      const key = prompt('Enter card name or last 4 to edit:', $('#ccName').value.trim());
-      if(!key) return;
-      const card = store.cards.find(c => c.name.toLowerCase()===key.toLowerCase() || (c.last4||'')===key);
-      if(!card) return alert('Card not found. Use exact name or last 4.');
-      const newName = prompt('Card name', card.name); if(newName===null) return;
-      const newLast4 = prompt('Last 4 (optional)', card.last4||''); if(newLast4===null) return;
-      const newLimitStr = prompt('Limit (optional)', card.limit||''); if(newLimitStr===null) return;
-      card.name = newName.trim()||card.name; card.last4 = (newLast4||'').trim(); card.limit = newLimitStr.trim()===''? '':(+newLimitStr||'');
-      save(); render();
+      if (!store.cards.length) return alert('No cards to edit.');
+      
+      const cardList = store.cards.map((c, i) => 
+        `${i + 1}. ${c.name}${c.last4 ? ` (•••• ${c.last4})` : ''}`
+      ).join('\n');
+      
+      const action = prompt(`Choose action:\n\n${cardList}\n\n1. Type card number to edit\n2. Type "delete X" to remove card X\n\nYour choice:`);
+      
+      if (!action) return;
+      
+      // Delete action
+      if (action.toLowerCase().startsWith('delete ')) {
+        const cardNum = parseInt(action.split(' ')[1]);
+        if (isNaN(cardNum) || cardNum < 1 || cardNum > store.cards.length) {
+          return alert('Invalid card number for deletion.');
+        }
+        
+        if (confirm(`Delete "${store.cards[cardNum - 1].name}"?`)) {
+          const cardId = store.cards[cardNum - 1].id;
+          store.cards.splice(cardNum - 1, 1);
+          // Remove payment data for this card
+          Object.keys(store.payments).forEach(month => {
+            delete store.payments[month][cardId];
+          });
+          save();
+          render();
+        }
+        return;
+      }
+      
+      // Edit action
+      const cardIndex = parseInt(action) - 1;
+      if (isNaN(cardIndex) || cardIndex < 0 || cardIndex >= store.cards.length) {
+        return alert('Invalid card number.');
+      }
+      
+      const card = store.cards[cardIndex];
+      const newName = prompt('Card name:', card.name);
+      if (newName === null) return;
+      
+      const newLast4 = prompt('Last 4 digits (optional):', card.last4 || '');
+      if (newLast4 === null) return;
+      
+      const newLimitStr = prompt('Credit limit (optional):', card.limit || '');
+      if (newLimitStr === null) return;
+      
+      card.name = newName.trim() || card.name;
+      card.last4 = (newLast4 || '').trim();
+      card.limit = newLimitStr.trim() === '' ? '' : (+newLimitStr || '');
+      save();
+      render();
     };
 
-    // ---------- Month + utilities ----------
     $('#btnPrev').onclick = () => shiftMonth(-1);
     $('#btnNext').onclick = () => shiftMonth(1);
-    function shiftMonth(d){ let date = $('#month').value ? new Date($('#month').value+'-01T00:00:00') : new Date(); date.setDate(1); date.setMonth(date.getMonth()+d); $('#month').value = ym(date); render(); }
+    
+    function shiftMonth(d) {
+      let date = $('#month').value ? new Date($('#month').value + '-01T00:00:00') : new Date();
+      date.setDate(1);
+      date.setMonth(date.getMonth() + d);
+      $('#month').value = ym(date);
+      $('#monthDisplay').textContent = formatMonthDisplay($('#month').value);
+      render();
+    }
 
     $('#btnExport').onclick = () => {
-      const m = $('#month').value; ensureMonth(m);
-      const rows = [["Card","Amount","Due Date","Status"]];
+      const m = $('#month').value;
+      ensureMonth(m);
+      const rows = [['Card', 'Amount', 'Currency', 'Due Date', 'Status']];
       store.cards.forEach(c => {
         const p = store.payments[m][c.id] || {};
-        rows.push([c.name, p.amount||'', p.dueDate||'', p.paid ? 'Paid' : 'Unpaid']);
+        rows.push([c.name, p.amount || '', p.currency || 'AED', p.dueDate || '', p.paid ? 'Paid' : 'Unpaid']);
       });
-      const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
-');
-      const blob = new Blob([csv], {type:'text/csv'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'payments.csv'; a.click();
-      URL.revokeObjectURL(url);
-    };
-        rows.push([c.name, p.amount||'', p.dueDate||'', p.paid ? 'Paid' : 'Unpaid']);
-      });
-      const csv = rows.map(r => r.map(v => '"'+String(v).replace(/"/g,'""')+'"').join(',')).join('
-');
-      const blob = new Blob([csv], {type:'text/csv'});
+      const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'payments.csv'; a.click();
+      a.href = url;
+      a.download = `credit-cards-${m}.csv`;
+      a.click();
       URL.revokeObjectURL(url);
     };
-    $('#btnReset').onclick = () => { if(confirm('Reset all data?')){ store = {cards:[],payments:{}}; save(); render(); } };
-    $('#btnToggleAmounts').onclick = () => { hideAmounts = !hideAmounts; localStorage.setItem(HIDE_KEY, hideAmounts?'1':'0'); render(); };
 
-    function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m])); }
+    $('#btnMarkAll').onclick = () => {
+      const m = $('#month').value;
+      ensureMonth(m);
+      store.cards.forEach(c => {
+        if (!store.payments[m][c.id]) {
+          store.payments[m][c.id] = { amount: '', dueDate: '', paid: false, currency: 'AED' };
+        }
+        store.payments[m][c.id].paid = true;
+      });
+      save();
+      render();
+    };
+
+    $('#btnReset').onclick = () => {
+      if (!confirm('Reset all payment data for this month?')) return;
+      const m = $('#month').value;
+      delete store.payments[m];
+      save();
+      render();
+    };
+
+    $('#hideToggle').onchange = (e) => {
+      hideAmounts = e.target.checked;
+      localStorage.setItem(HIDE_KEY, hideAmounts ? '1' : '0');
+      render();
+    };
+
+    $('#totalCurrency').onchange = (e) => {
+      totalCurrency = e.target.value;
+      localStorage.setItem(CURRENCY_KEY, totalCurrency);
+      render();
+    };
+
+    function escapeHtml(s) {
+      return (s || '').replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;" }[m]));
+    }
+
+    // Add card section toggle
+    let addCardExpanded = false;
+    $('#addCardToggle').onclick = () => {
+      addCardExpanded = !addCardExpanded;
+      $('#addCardContent').classList.toggle('expanded', addCardExpanded);
+      $('#expandIcon').classList.toggle('expanded', addCardExpanded);
+    };
 
     // ---------- Init ----------
-    (function init(){ const d=new Date(); d.setDate(1); $('#month').value = ym(d); render(); })();
+    (function init() {
+      const d = new Date();
+      d.setDate(1);
+      $('#month').value = ym(d);
+      $('#monthDisplay').textContent = formatMonthDisplay($('#month').value);
+      $('#hideToggle').checked = hideAmounts;
+      $('#totalCurrency').value = totalCurrency;
+      render();
+    })();
   </script>
 </body>
 </html>
