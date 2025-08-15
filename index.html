@@ -23,14 +23,15 @@
       border: 1px solid #2a3b57;
       background: var(--accent);
       color: #fff;
-      padding: 10px 12px;
+      padding: 10px 14px;
       font-size: 16px;
-      min-width: 0;
+      min-width: 44px;
       z-index: 1;
       position: relative;
       pointer-events: auto;
       touch-action: manipulation;
       transition: background 0.2s ease, transform 0.1s ease;
+      line-height: 1.2;
     }
     button.secondary {
       background: #1b2433;
@@ -62,10 +63,14 @@
     .chip{background:#0f1722;border:1px solid #20314d;color:#e6edf3;border-radius:999px;padding:6px 10px;font-weight:700;font-size:14px}
     .hidden-amount{filter:blur(7px)}
 
-    @media (max-width:480px){.wrap{padding:0 8px} input[type="month"]{width:170px}}
+    @media (max-width:480px){
+      .wrap{padding:0 8px} 
+      input[type="month"]{width:170px}
+      button{padding:10px;min-width:36px;font-size:14px}
+    }
   </style>
 </head>
 <body>
-  <!-- HTML content and script from previous working version goes here -->
+  <!-- Full HTML and JS app code goes here -->
 </body>
 </html>
